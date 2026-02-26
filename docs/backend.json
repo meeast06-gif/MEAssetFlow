@@ -1,52 +1,92 @@
 {
   "entities": {
     "Asset": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Asset",
-      "description": "Represents a financial asset held by a user.",
       "type": "object",
+      "description": "Represents a single financial or tangible asset owned by a user.",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Asset entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns this asset. (Relationship: User 1:N Asset)"
+        },
         "name": {
           "type": "string",
-          "description": "The name of the asset."
+          "description": "The common name or description of the asset (e.g., 'Apple Stock', 'Main Residence')."
         },
         "type": {
           "type": "string",
-          "description": "The type of asset.",
-          "enum": [
-            "Stocks",
-            "Bonds",
-            "Real Estate",
-            "Savings",
-            "Crypto",
-            "Other"
-          ]
+          "description": "The category or type of the asset (e.g., 'Stocks', 'Real Estate', 'Cash', 'Cryptocurrency', 'Other')."
         },
-        "value": {
+        "currentValue": {
           "type": "number",
-          "description": "The current monetary value of the asset."
+          "description": "The current estimated monetary value of the asset."
         },
         "acquisitionDate": {
           "type": "string",
-          "format": "date-time",
-          "description": "The date the asset was acquired."
+          "description": "The date when the asset was acquired.",
+          "format": "date-time"
         },
         "notes": {
           "type": "string",
-          "description": "Any additional notes about the asset."
+          "description": "Optional additional notes or details about the asset."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the asset record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the asset record was last updated.",
+          "format": "date-time"
         }
       },
-      "required": ["name", "type", "value", "acquisitionDate"]
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "type",
+        "currentValue",
+        "acquisitionDate",
+        "createdAt",
+        "updatedAt"
+      ]
     }
   },
   "auth": {
-    "providers": ["google.com"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/assets/{assetId}": {
-      "schema": {
-        "$ref": "#/backend/entities/Asset"
-      },
-      "description": "Collection of all assets."
-    }
+    "structure": [
+      {
+        "path": "/users/{userId}/assets/{assetId}",
+        "definition": {
+          "entityName": "Asset",
+          "schema": {
+            "$ref": "#/backend/entities/Asset"
+          },
+          "description": "Stores individual financial or tangible assets belonging to a specific user. The '{userId}' in the path serves as the primary authorization key, ensuring that only the authenticated user can access their own assets. Includes denormalized 'userId' field in the document itself for data integrity checks. This path enables Authorization Independence by embedding the owner ID directly in the document's path and supports QAP-compliant list operations.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the assets. Used for path-based authorization."
+            },
+            {
+              "name": "assetId",
+              "description": "The unique identifier for a specific asset within a user's collection."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore data structure for AssetWatch centers around a hierarchical, user-centric model: `/users/{userId}/assets/{assetId}`. This design critically prioritizes Authorization Independence by storing each user's assets in a dedicated subcollection under their unique user ID. This ensures that a document's ownership (`userId`) is inherently part of its path, eliminating the need for security rules to perform expensive and dependency-creating `get()` operations on parent documents or to fetch user roles. Rules can simply compare `request.auth.uid` directly with the `{userId}` wildcard in the path, making them simple, robust, and easy to debug. The `userId` field within the Asset document further solidifies this ownership for client-side context and data integrity. This approach aligns with the mandate to denormalize authorization context, as the relevant user ID is always immediately available within the document's direct path.This structure also directly supports Query as a Security Principal (QAP) for secure `list` operations. Users can only query assets within their specific `/users/{userId}/assets` subcollection. Firestore's security rules will automatically enforce this path-based access control, preventing users from arbitrarily listing or accessing assets belonging to other users. This structural segregation ensures that each collection maintains a homogeneous security posture, where all documents share the same access requirements (owner-only access). Furthermore, this approach leverages standard access modeling patterns for private, user-owned data, continuing the natural hierarchy for `User 1:N Asset` relationships. This radically consistent and predictable structure minimizes complexity in security rules and ensures scalability and debuggability."
   }
 }

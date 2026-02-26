@@ -1,51 +1,26 @@
 'use client';
-import { FirebaseApp } from 'firebase/app';
-import { Auth } from 'firebase/auth';
-import { Firestore } from 'firebase/firestore';
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { FirebaseProvider, initializeFirebase } from '.';
 
-const FirebaseClientContext = createContext<{
-  firebaseApp: FirebaseApp | null;
-  auth: Auth | null;
-  firestore: Firestore | null;
-}>({
-  firebaseApp: null,
-  auth: null,
-  firestore: null,
-});
+import React, { useMemo, type ReactNode } from 'react';
+import { FirebaseProvider } from '@/firebase/provider';
+import { initializeFirebase } from '@/firebase';
 
-export function FirebaseClientProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [firebase, setFirebase] = useState<{
-    firebaseApp: FirebaseApp;
-    auth: Auth;
-    firestore: Firestore;
-  } | null>(null);
-
-  useEffect(() => {
-    const { firebaseApp, auth, firestore } = initializeFirebase();
-    setFirebase({ firebaseApp, auth, firestore });
-  }, []);
-
-  if (!firebase) {
-    return null;
-  }
-
-  return (
-    <FirebaseClientContext.Provider value={firebase}>
-      <FirebaseProvider
-        firebaseApp={firebase.firebaseApp}
-        auth={firebase.auth}
-        firestore={firebase.firestore}
-      >
-        {children}
-      </FirebaseProvider>
-    </FirebaseClientContext.Provider>
-  );
+interface FirebaseClientProviderProps {
+  children: ReactNode;
 }
 
-export const useFirebaseClient = () => useContext(FirebaseClientContext);
+export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
+  const firebaseServices = useMemo(() => {
+    // Initialize Firebase on the client side, once per component mount.
+    return initializeFirebase();
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  return (
+    <FirebaseProvider
+      firebaseApp={firebaseServices.firebaseApp}
+      auth={firebaseServices.auth}
+      firestore={firebaseServices.firestore}
+    >
+      {children}
+    </FirebaseProvider>
+  );
+}
