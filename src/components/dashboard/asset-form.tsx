@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTransition } from "react";
 import { addDoc, updateDoc, doc, collection, Timestamp } from "firebase/firestore";
-import { useFirestore } from "@/firebase";
+import { useFirestore, useUser } from "@/firebase";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 
@@ -42,24 +42,25 @@ export function AssetForm({ asset, onSuccess }: AssetFormProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const form = useForm<AssetFormData>({
     resolver: zodResolver(AssetFormSchema),
     defaultValues: {
       name: asset?.name || "",
       type: asset?.type || "Stocks",
-      value: asset?.value || 0,
+      value: asset?.currentValue || 0,
       acquisitionDate: asset ? new Date(asset.acquisitionDate) : new Date(),
       notes: asset?.notes || "",
     },
   });
 
   const onSubmit = (values: AssetFormData) => {
-    if (!firestore) {
+    if (!firestore || !user) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Firestore is not available. Please try again later.",
+        description: "You must be logged in to manage assets.",
       });
       return;
     };
@@ -68,11 +69,14 @@ export function AssetForm({ asset, onSuccess }: AssetFormProps) {
         const { acquisitionDate, ...rest } = values;
         const dataToSave = {
             ...rest,
+            userId: user.uid,
             acquisitionDate: Timestamp.fromDate(acquisitionDate),
+            createdAt: asset?.createdAt || Timestamp.now(),
+            updatedAt: Timestamp.now(),
         };
 
         if (asset) {
-            const assetRef = doc(firestore, 'assets', asset.id);
+            const assetRef = doc(firestore, `users/${user.uid}/assets`, asset.id);
             updateDoc(assetRef, dataToSave).catch(async (serverError) => {
                 const permissionError = new FirestorePermissionError({
                     path: assetRef.path,
@@ -83,10 +87,10 @@ export function AssetForm({ asset, onSuccess }: AssetFormProps) {
             });
             toast({
                 title: 'Asset Updated',
-                description: `${dataToSave.name} has been updated.`,
+                description: `${values.name} has been updated.`,
             });
         } else {
-            const assetsCollection = collection(firestore, 'assets');
+            const assetsCollection = collection(firestore, `users/${user.uid}/assets`);
             addDoc(assetsCollection, dataToSave).catch(async (serverError) => {
                 const permissionError = new FirestorePermissionError({
                     path: assetsCollection.path,
@@ -97,7 +101,7 @@ export function AssetForm({ asset, onSuccess }: AssetFormProps) {
             });
             toast({
                 title: 'Asset Added',
-                description: `${dataToSave.name} has been added.`,
+                description: `${values.name} has been added.`,
             });
         }
         onSuccess();

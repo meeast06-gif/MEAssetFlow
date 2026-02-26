@@ -12,8 +12,11 @@ export async function getAiSummary(assets: Asset[]) {
     }
 
     const flowInput = assets.map(asset => ({
-        ...asset,
-        acquisitionDate: asset.acquisitionDate.split('T')[0] // Format as YYYY-MM-DD
+        name: asset.name,
+        type: asset.type,
+        value: asset.currentValue,
+        acquisitionDate: asset.acquisitionDate.split('T')[0], // Format as YYYY-MM-DD
+        notes: asset.notes,
     }));
 
     const result = await summarizeAssetPortfolio({ assets: flowInput });

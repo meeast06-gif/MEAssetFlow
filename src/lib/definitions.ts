@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ASSET_TYPES } from "./constants";
+import type { Timestamp } from "firebase/firestore";
 
 export const AssetFormSchema = z.object({
   name: z.string().min(2, "Asset name must be at least 2 characters."),
@@ -13,11 +14,15 @@ export const AssetFormSchema = z.object({
 
 export type AssetFormData = z.infer<typeof AssetFormSchema>;
 
+// Represents the data structure in Firestore
 export type Asset = {
   id: string;
+  userId: string;
   name: string;
   type: (typeof ASSET_TYPES)[number];
-  value: number;
-  acquisitionDate: string; // Stored as ISO string in Firestore
+  currentValue: number;
+  acquisitionDate: string; // Stored as ISO string for client
   notes?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 };

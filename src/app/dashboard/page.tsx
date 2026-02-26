@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { collection, orderBy, query } from "firebase/firestore";
-import { useCollection, useFirestore } from "@/firebase";
+import { useCollection, useFirestore, useUser } from "@/firebase";
 import type { Asset } from "@/lib/definitions";
 import PageHeader from "@/components/dashboard/page-header";
 import SummaryCards from "@/components/dashboard/summary-cards";
@@ -13,11 +13,12 @@ import Loading from "./loading";
 
 export default function DashboardPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const assetsQuery = useMemo(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'assets'), orderBy('acquisitionDate', 'desc'));
-  }, [firestore]);
+    if (!firestore || !user) return null;
+    return query(collection(firestore, `users/${user.uid}/assets`), orderBy('acquisitionDate', 'desc'));
+  }, [firestore, user]);
 
   const { data: assets, loading } = useCollection<Asset>(assetsQuery, {
     snapshotListenOptions: { includeMetadataChanges: true },
@@ -28,7 +29,7 @@ export default function DashboardPage() {
     })
   });
 
-  if (loading) {
+  if (loading || !user) {
     return <Loading />;
   }
   

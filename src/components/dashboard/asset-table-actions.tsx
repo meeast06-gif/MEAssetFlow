@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { MoreHorizontal, Trash2, Edit, Loader2 } from "lucide-react";
 import { doc, deleteDoc } from "firebase/firestore";
-import { useFirestore } from "@/firebase";
+import { useFirestore, useUser } from "@/firebase";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 
@@ -44,11 +44,12 @@ export function AssetTableActions({ asset }: { asset: Asset }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const handleDelete = () => {
-    if (!firestore) return;
+    if (!firestore || !user) return;
     startTransition(() => {
-      const assetRef = doc(firestore, 'assets', asset.id);
+      const assetRef = doc(firestore, `users/${user.uid}/assets`, asset.id);
       deleteDoc(assetRef).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: assetRef.path,

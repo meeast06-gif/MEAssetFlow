@@ -7,7 +7,6 @@ import { DollarSign, PieChart as PieChartIcon } from "lucide-react";
 
 import { Asset } from "@/lib/definitions";
 import { formatCurrency } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface SummaryCardsProps {
   assets: Asset[];
@@ -46,10 +45,10 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export default function SummaryCards({ assets }: SummaryCardsProps) {
   const { totalValue, distribution } = useMemo(() => {
-    const total = assets.reduce((sum, asset) => sum + asset.value, 0);
+    const total = assets.reduce((sum, asset) => sum + asset.currentValue, 0);
 
     const distMap = assets.reduce((acc, asset) => {
-      acc[asset.type] = (acc[asset.type] || 0) + asset.value;
+      acc[asset.type] = (acc[asset.type] || 0) + asset.currentValue;
       return acc;
     }, {} as Record<string, number>);
     

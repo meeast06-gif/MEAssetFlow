@@ -1,105 +1,31 @@
-/**
- * Core Philosophy: This ruleset enforces a strict user-ownership model. All data
- * is private and partitioned by user, ensuring that an authenticated user can
- * only ever access their own information. The security model is designed for
- * simplicity, performance, and strong authorization guarantees.
- *
- * Data Structure: Data is organized hierarchically under a top-level `users`
- * collection. Each user's data, such as their financial assets, is stored in a
- * dedicated subcollection under their unique user ID (e.g., `/users/{userId}/assets/{assetId}`).
- * This structure inherently isolates user data.
- *
- * Key Security Decisions:
- * - Strict Ownership: All operations (read, write, delete) are gated by a check
- *   that compares the authenticated user's ID (`request.auth.uid`) with the
- *   `{userId}` wildcard in the document path.
- * - No Public Access: There are no publicly readable or writable collections. All
- *   data is considered private to its owner.
- * - No User Listing: The rules do not allow for listing the top-level `/users`
- *   collection, preventing enumeration of all users in the system.
- *
- * Denormalization for Authorization: The security model relies on the document path
- * as the primary source of truth for authorization. The `{userId}` in the path is
- * used to grant access, which avoids slow and costly `get()` calls to other
-*  documents. The `Asset` documents also contain a `userId` field, which is used
-*  as a redundant check to enforce data integrity and prevent assets from being
-*  moved between users.
- *
- * Structural Segregation: The use of a user-specific subcollection
- * (`/users/{userId}/assets`) is a deliberate form of structural segregation.
- * It ensures that all documents within a given query path share the same
- * security context (they all belong to one user), which makes list operations
- * both secure and highly performant.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // =====================================================================
-    // Helper Functions
-    // =====================================================================
-
-    /**
-     * Checks if a user is authenticated.
-     */
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    /**
-     * Checks if the currently authenticated user's UID matches the provided userId.
-     * This is the primary function for enforcing the ownership model.
-     * @param userId The user ID to check against the request's auth UID.
-     */
+    // Helper function to check if the user is the owner of the document
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
 
-    /**
-     * Checks for ownership on an existing document. Used for update and delete
-     * operations to prevent acting on non-existent data.
-     * @param userId The user ID to check against the request's auth UID.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-    
-    /**
-     * On create, validates that the incoming document's 'userId' field matches
-     * the user ID from the path, ensuring data consistency.
-     * @param userId The user ID from the document path.
-     */
-    function hasValidOwnerFieldOnCreate(userId) {
-      return request.resource.data.userId == userId;
+    // Rules for user profiles
+    match /users/{userId} {
+      // Allow users to read and write their own profile
+      allow read, write: if isOwner(userId);
     }
 
-    /**
-     * On update, ensures the 'userId' field cannot be changed, preventing
-     * an asset from being reassigned to a different user.
-     */
-    function isOwnerFieldImmutable() {
-      return request.resource.data.userId == resource.data.userId;
-    }
-
-
-    // =====================================================================
-    // Collection Rules
-    // =====================================================================
-
-    /**
-     * @description Governs access to a user's private financial assets. Only the
-     *              owner can read, write, or delete their own assets.
-     * @path        /users/{userId}/assets/{assetId}
-     * @allow       (create) A user with auth.uid = 'user123' can create a document at '/users/user123/assets/asset_abc'.
-     * @deny        (read) A user with auth.uid = 'user456' is denied from reading '/users/user123/assets/asset_abc'.
-     * @principle   Restricts access to a user's own data tree (Ownership Model).
-     */
+    // Rules for user assets
     match /users/{userId}/assets/{assetId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidOwnerFieldOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isOwnerFieldImmutable();
-      allow delete: if isExistingOwner(userId);
+      // Allow owner to do everything
+      allow get, list: if isOwner(userId);
+      
+      // Allow create if the user is the owner and the userId in the document matches
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      
+      // Allow update if the user is the owner and they are not changing the userId
+      allow update: if isOwner(userId) && request.resource.data.userId == resource.data.userId;
+      
+      // Allow delete if the user is the owner
+      allow delete: if isOwner(userId);
     }
   }
 }

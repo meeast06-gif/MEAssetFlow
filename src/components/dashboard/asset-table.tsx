@@ -57,7 +57,7 @@ export default function AssetTable({ assets }: { assets: Asset[] }) {
                   <TableCell className="hidden md:table-cell">
                     {format(new Date(asset.acquisitionDate), "MMM d, yyyy")}
                   </TableCell>
-                  <TableCell className="text-right">{formatCurrency(asset.value)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(asset.currentValue)}</TableCell>
                   <TableCell>
                     <div className="flex justify-end">
                       <AssetTableActions asset={asset} />
