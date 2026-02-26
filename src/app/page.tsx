@@ -1,53 +1,19 @@
-"use client";
+import type { Metadata } from 'next';
 
-import { useMemo } from "react";
-import { collection, orderBy, query } from "firebase/firestore";
-import { useCollection, useFirestore } from "@/firebase";
-import type { Asset } from "@/lib/definitions";
-import PageHeader from "@/components/dashboard/page-header";
-import SummaryCards from "@/components/dashboard/summary-cards";
-import AssetTable from "@/components/dashboard/asset-table";
-import AiSummary from "@/components/dashboard/ai-summary";
-import Loading from "./loading";
+export const metadata: Metadata = {
+  title: 'Login | ME Asset Flow',
+};
 
-
-export default function Home() {
-  const firestore = useFirestore();
-
-  const assetsQuery = useMemo(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'assets'), orderBy('acquisitionDate', 'desc'));
-  }, [firestore]);
-
-  const { data: assets, loading } = useCollection<Asset>(assetsQuery, {
-    snapshotListenOptions: { includeMetadataChanges: true },
-    idField: 'id',
-    transform: (data: any) => ({
-      ...data,
-      acquisitionDate: data.acquisitionDate?.toDate ? data.acquisitionDate.toDate().toISOString() : new Date().toISOString(),
-    })
-  });
-
-  if (loading) {
-    return <Loading />;
-  }
-  
-  const validAssets = assets || [];
-
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <PageHeader />
-        <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 grid auto-rows-min gap-4 md:gap-8">
-            <SummaryCards assets={validAssets} />
-            <AssetTable assets={validAssets} />
-          </div>
-          <div className="lg:col-span-1">
-            <AiSummary assets={validAssets} />
-          </div>
-        </div>
-      </main>
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="text-center">
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+          <span className="bg-gradient-to-r from-orange-400 via-red-500 to-red-600 bg-clip-text text-transparent">
+            ME Asset Flow
+          </span>
+        </h1>
+      </div>
+    </main>
   );
 }
