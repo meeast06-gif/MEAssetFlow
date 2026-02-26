@@ -5,7 +5,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 export const metadata: Metadata = {
-  title: 'AssetWatch',
+  title: 'ME Asset Flow',
   description: 'Track your assets with ease and get AI-powered insights.',
 };
 

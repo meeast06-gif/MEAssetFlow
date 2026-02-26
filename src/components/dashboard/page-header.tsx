@@ -17,7 +17,11 @@ export default function PageHeader() {
 
   return (
     <div className="flex items-center">
-      <h1 className="text-lg font-semibold md:text-2xl">AssetWatch</h1>
+      <h1 className="text-lg font-semibold md:text-2xl">
+        <span className="bg-gradient-to-r from-orange-400 via-red-500 to-red-600 bg-clip-text text-transparent">
+          ME Asset Flow
+        </span>
+      </h1>
       <div className="ml-auto flex items-center gap-2">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
