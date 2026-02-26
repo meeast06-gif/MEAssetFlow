@@ -33,8 +33,8 @@ export default function LoginPage() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div className="flex flex-col items-center gap-6 rounded-lg bg-card p-8 shadow-md">
         <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-orange-400 via-red-500 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-6xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-orange-300 via-red-500 to-red-600 bg-clip-text text-transparent drop-shadow-lg brightness-110 saturate-125">
               ME Asset Flow
             </span>
           </h1>

@@ -46,8 +46,8 @@ export default function PageHeader() {
 
   return (
     <div className="flex items-center">
-      <h1 className="text-lg font-semibold md:text-2xl">
-        <span className="bg-gradient-to-r from-orange-400 via-red-500 to-red-600 bg-clip-text text-transparent">
+      <h1 className="text-2xl font-semibold md:text-3xl">
+        <span className="bg-gradient-to-r from-orange-300 via-red-500 to-red-600 bg-clip-text text-transparent drop-shadow-sm brightness-110 saturate-125">
           ME Asset Flow
         </span>
       </h1>
