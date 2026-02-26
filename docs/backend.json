@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "Asset": {
+      "title": "Asset",
+      "description": "Represents a financial asset held by a user.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the asset."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of asset.",
+          "enum": [
+            "Stocks",
+            "Bonds",
+            "Real Estate",
+            "Savings",
+            "Crypto",
+            "Other"
+          ]
+        },
+        "value": {
+          "type": "number",
+          "description": "The current monetary value of the asset."
+        },
+        "acquisitionDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date the asset was acquired."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes about the asset."
+        }
+      },
+      "required": ["name", "type", "value", "acquisitionDate"]
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/assets/{assetId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Asset"
+      },
+      "description": "Collection of all assets."
+    }
+  }
+}

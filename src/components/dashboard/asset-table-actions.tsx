@@ -2,6 +2,10 @@
 
 import { useState, useTransition } from "react";
 import { MoreHorizontal, Trash2, Edit, Loader2 } from "lucide-react";
+import { doc, deleteDoc } from "firebase/firestore";
+import { useFirestore } from "@/firebase";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +36,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Asset } from "@/lib/definitions";
-import { deleteAsset } from "@/lib/actions";
 import { AssetForm } from "./asset-form";
 
 export function AssetTableActions({ asset }: { asset: Asset }) {
@@ -40,23 +43,24 @@ export function AssetTableActions({ asset }: { asset: Asset }) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   const handleDelete = () => {
-    startTransition(async () => {
-      const result = await deleteAsset(asset.id);
-      if (result?.message) {
-        toast({
-          title: "Asset Deleted",
-          description: result.message,
+    if (!firestore) return;
+    startTransition(() => {
+      const assetRef = doc(firestore, 'assets', asset.id);
+      deleteDoc(assetRef).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: assetRef.path,
+            operation: 'delete',
         });
-        setIsDeleteOpen(false);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: result?.message || "Failed to delete asset.",
-        });
-      }
+        errorEmitter.emit('permission-error', permissionError);
+      });
+      toast({
+        title: "Asset Deleting",
+        description: `Permanently deleting ${asset.name}.`,
+      });
+      setIsDeleteOpen(false);
     });
   };
 

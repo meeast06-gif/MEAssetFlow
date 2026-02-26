@@ -3,6 +3,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTransition } from "react";
+import { addDoc, updateDoc, doc, collection, Timestamp } from "firebase/firestore";
+import { useFirestore } from "@/firebase";
+import { errorEmitter } from "@/firebase/error-emitter";
+import { FirestorePermissionError } from "@/firebase/errors";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +30,6 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
-import { addAsset, updateAsset } from "@/lib/actions";
 import { Asset, AssetFormData, AssetFormSchema } from "@/lib/definitions";
 import { ASSET_TYPES } from "@/lib/constants";
 
@@ -38,6 +41,7 @@ interface AssetFormProps {
 export function AssetForm({ asset, onSuccess }: AssetFormProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   const form = useForm<AssetFormData>({
     resolver: zodResolver(AssetFormSchema),
@@ -51,23 +55,52 @@ export function AssetForm({ asset, onSuccess }: AssetFormProps) {
   });
 
   const onSubmit = (values: AssetFormData) => {
-    startTransition(async () => {
-      const action = asset ? updateAsset(asset.id, values) : addAsset(values);
-      const result = await action;
+    if (!firestore) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Firestore is not available. Please try again later.",
+      });
+      return;
+    };
 
-      if (result?.message) {
-        toast({
-          title: asset ? "Asset Updated" : "Asset Created",
-          description: result.message,
-        });
+    startTransition(() => {
+        const { acquisitionDate, ...rest } = values;
+        const dataToSave = {
+            ...rest,
+            acquisitionDate: Timestamp.fromDate(acquisitionDate),
+        };
+
+        if (asset) {
+            const assetRef = doc(firestore, 'assets', asset.id);
+            updateDoc(assetRef, dataToSave).catch(async (serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: assetRef.path,
+                    operation: 'update',
+                    requestResourceData: dataToSave,
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            });
+            toast({
+                title: 'Asset Updated',
+                description: `${dataToSave.name} has been updated.`,
+            });
+        } else {
+            const assetsCollection = collection(firestore, 'assets');
+            addDoc(assetsCollection, dataToSave).catch(async (serverError) => {
+                const permissionError = new FirestorePermissionError({
+                    path: assetsCollection.path,
+                    operation: 'create',
+                    requestResourceData: dataToSave,
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            });
+            toast({
+                title: 'Asset Added',
+                description: `${dataToSave.name} has been added.`,
+            });
+        }
         onSuccess();
-      } else if (result?.errors) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: result.message || "An unexpected error occurred.",
-        });
-      }
     });
   };
 

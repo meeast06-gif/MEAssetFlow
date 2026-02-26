@@ -21,7 +21,7 @@ export default function AiSummary({ assets }: { assets: Asset[] }) {
 
   const handleGenerateSummary = () => {
     startTransition(async () => {
-      const summaryResult = await getAiSummary();
+      const summaryResult = await getAiSummary(assets);
       setResult(summaryResult);
     });
   };
