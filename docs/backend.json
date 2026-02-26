@@ -39,7 +39,7 @@
     }
   },
   "auth": {
-    "providers": []
+    "providers": ["google.com"]
   },
   "firestore": {
     "/assets/{assetId}": {

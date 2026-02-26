@@ -5,19 +5,23 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import Loading from './loading';
 
-export default function HomePage() {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, loading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        router.replace('/dashboard');
-      } else {
-        router.replace('/login');
-      }
+    if (!loading && !user) {
+      router.push('/login');
     }
   }, [user, loading, router]);
 
-  return <Loading />;
+  if (loading || !user) {
+    return <Loading />;
+  }
+
+  return <>{children}</>;
 }
