@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { useAuth, useUser } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { useAuth, useUser, useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +14,7 @@ import Loading from '../loading';
 
 export default function LoginPage() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, loading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -28,7 +30,7 @@ export default function LoginPage() {
   }, [user, loading, router]);
 
   const handleSignIn = async () => {
-    if (!auth) return;
+    if (!auth || !firestore) return;
 
     if (username !== 'MEAF' || passKey !== '2026') {
         toast({
@@ -50,8 +52,17 @@ export default function LoginPage() {
         if (error.code === 'auth/user-not-found') {
             try {
                 // If user does not exist, create it.
-                await createUserWithEmailAndPassword(auth, email, password);
-                // Successful creation and sign-in will be detected by useUser.
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const newUser = userCredential.user;
+                // Create user profile in Firestore
+                if (newUser) {
+                    const userDocRef = doc(firestore, 'users', newUser.uid);
+                    await setDoc(userDocRef, {
+                        email: newUser.email,
+                        displayName: 'MEAF User',
+                        photoURL: '',
+                    });
+                }
             } catch (creationError: any) {
                 setIsLoggingIn(false);
                 toast({
