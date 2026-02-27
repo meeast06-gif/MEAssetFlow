@@ -10,6 +10,7 @@ import { Sigma, UserPlus, ArchiveRestore, CircleOff, Wrench, ClipboardCheck, Dol
 import Loading from "./loading";
 import { getModuleNameFromSlug, formatCurrency } from "@/lib/utils";
 import type { InventoryAsset } from "@/lib/definitions";
+import StatusRingChart from "@/components/module/status-ring-chart";
 
 const dashboardItems = [
   { title: "Total Asset", icon: Sigma, description: "Total assets registered", key: "total" },
@@ -43,9 +44,11 @@ export default function ModuleDashboardPage() {
           const status = asset.status.trim().toLowerCase();
           if (status.includes('assign')) {
               acc.assign++;
-          } else if (status.includes('decom')) {
+          }
+          if (status.includes('decom')) {
               acc.decom++;
-          } else if (status.includes('dispose')) {
+          }
+          if (status.includes('dispose')) {
               acc.dispose++;
           }
           if (status.includes('inspection')) {
@@ -63,7 +66,7 @@ export default function ModuleDashboardPage() {
         
         // Total asset value sum
         if (asset.net_book_value) {
-            const value = parseFloat(asset.net_book_value);
+            const value = parseFloat(asset.net_book_value.replace(/[^0-9.-]+/g,""));
             if (!isNaN(value)) {
                 acc.totalAssetValue += value;
             }
@@ -128,6 +131,7 @@ export default function ModuleDashboardPage() {
               </Card>
             );
           })}
+          <StatusRingChart data={dashboardValues} />
         </div>
       </main>
     </div>
