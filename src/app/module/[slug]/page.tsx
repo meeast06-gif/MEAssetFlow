@@ -41,7 +41,7 @@ export default function ModuleDashboardPage({ params }: { params: { slug: string
   
   const moduleName = useMemo(() => {
     return params.slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  }, [params.slug]);
+  }, [params]);
 
   return (
     <div className="flex min-h-screen w-full flex-col">

@@ -88,7 +88,7 @@ export default function ModuleLayout({
   const moduleName = useMemo(() => {
     // A simple un-slugify. This could be improved.
     return params.slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/T0/g, 'T0');
-  }, [params.slug]);
+  }, [params]);
 
   if (loading || !user) {
     return <Loading />;
