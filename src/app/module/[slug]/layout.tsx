@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useParams } from 'next/navigation';
 import { useUser } from '@/firebase';
 import Loading from './loading';
 import {
@@ -71,13 +71,14 @@ function ModuleSidebar({ slug, moduleName }: { slug: string, moduleName: string 
 
 export default function ModuleLayout({
   children,
-  params: { slug },
 }: {
   children: React.ReactNode;
-  params: { slug: string };
 }) {
   const { user, loading } = useUser();
   const router = useRouter();
+  const params = useParams();
+  const slug = params.slug as string;
+
 
   useEffect(() => {
     if (!loading && !user) {
@@ -86,6 +87,7 @@ export default function ModuleLayout({
   }, [user, loading, router]);
 
   const moduleName = useMemo(() => {
+    if (!slug) return "";
     // A simple un-slugify. This could be improved.
     return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/T0/g, 'T0');
   }, [slug]);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useParams } from "next/navigation";
 import { collection, orderBy, query } from "firebase/firestore";
 import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebase";
 import type { Asset } from "@/lib/definitions";
@@ -11,9 +12,11 @@ import AiSummary from "@/components/module/ai-summary";
 import Loading from "./loading";
 
 
-export default function ModuleDashboardPage({ params: { slug } }: { params: { slug: string } }) {
+export default function ModuleDashboardPage() {
   const firestore = useFirestore();
   const { user } = useUser();
+  const params = useParams();
+  const slug = params.slug as string;
 
   const assetsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -40,6 +43,7 @@ export default function ModuleDashboardPage({ params: { slug } }: { params: { sl
   const validAssets = assets || [];
   
   const moduleName = useMemo(() => {
+    if (!slug) return "";
     return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }, [slug]);
 
