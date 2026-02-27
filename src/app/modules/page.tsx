@@ -17,6 +17,15 @@ const modules = [
     "Electrical Fundamental"
 ];
 
+const slugify = (text: string) => {
+    return text.toString().toLowerCase()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+        .replace(/^-+/, '')             // Trim - from start of text
+        .replace(/-+$/, '');            // Trim - from end of text
+}
+
 export default function ModulesPage() {
     const { user, loading } = useUser();
     const router = useRouter();
@@ -65,7 +74,7 @@ export default function ModulesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {modules.map((moduleName) => (
                         <Link
-                            href="/dashboard"
+                            href={`/module/${slugify(moduleName)}`}
                             key={moduleName}
                             className="block p-1 bg-gradient-to-r from-orange-300 via-red-500 to-red-600 rounded-xl transform hover:scale-105 transition-transform duration-300"
                         >
