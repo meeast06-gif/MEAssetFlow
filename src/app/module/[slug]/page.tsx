@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
@@ -37,7 +37,8 @@ export default function ModuleDashboardPage() {
 
   const dashboardValues = useMemo(() => {
     const counts = (inventoryAssets || []).reduce((acc, asset) => {
-        const status = asset.status?.toLowerCase().trim();
+      if (asset && typeof asset.status === 'string') {
+        const status = asset.status.trim().toLowerCase();
         if (status === 'assign') {
             acc.assign++;
         } else if (status === 'decom') {
@@ -45,7 +46,8 @@ export default function ModuleDashboardPage() {
         } else if (status === 'dispose') {
             acc.dispose++;
         }
-        return acc;
+      }
+      return acc;
     }, { assign: 0, decom: 0, dispose: 0 });
 
     return {
@@ -87,7 +89,7 @@ export default function ModuleDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {item.key === 'totalAssetValue' ? formatCurrency(value) : value}
+                    {item.key === 'totalAssetValue' || item.key === 'netBookValue' ? formatCurrency(value) : value}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {item.description}
