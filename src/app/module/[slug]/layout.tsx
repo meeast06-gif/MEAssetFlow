@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter, useParams } from 'next/navigation';
 import { useUser } from '@/firebase';
 import Loading from './loading';
@@ -15,26 +15,17 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
-  useSidebar
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from '@/components/ui/separator';
 
 
 function ModuleSidebar({ slug }: { slug: string }) {
     const pathname = usePathname();
-    const [aiDialogOpen, setAiDialogOpen] = useState(false);
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [response, setResponse] = useState('');
@@ -86,56 +77,39 @@ function ModuleSidebar({ slug }: { slug: string }) {
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}
-                    <SidebarMenuItem>
-                        <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-                            <DialogTrigger asChild>
-                                <SidebarMenuButton tooltip={{children: "AI Organizer"}}>
-                                    <Sparkles />
-                                    <span>AI Organizer</span>
-                                </SidebarMenuButton>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-xl">
-                                <DialogHeader>
-                                    <DialogTitle>AI Organizer</DialogTitle>
-                                    <DialogDescription>
-                                        Enter a prompt to have the AI assist you with organizing your assets or generating reports.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <Textarea
-                                        placeholder="e.g., 'List all assets that need servicing in the next 30 days' or 'Generate a summary of decommissioned machinery.'"
-                                        value={prompt}
-                                        onChange={(e) => setPrompt(e.target.value)}
-                                        className="min-h-[120px]"
-                                        disabled={isLoading}
-                                    />
-                                    <Button onClick={handleAiSubmit} disabled={isLoading || !prompt}>
-                                        {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                                        Generate Response
-                                    </Button>
-                                </div>
-                                <div className="w-full">
-                                    <h3 className="text-lg font-semibold mb-2">AI Response</h3>
-                                    <div className="p-4 border rounded-md min-h-[100px] bg-muted/50">
-                                        {isLoading ? (
-                                            <div className="space-y-2">
-                                                <Skeleton className="h-4 w-full" />
-                                                <Skeleton className="h-4 w-full" />
-                                                <Skeleton className="h-4 w-3/4" />
-                                            </div>
-                                        ) : response ? (
-                                            <p className="text-sm">{response}</p>
-                                        ) : (
-                                            <p className="text-sm text-muted-foreground">The AI's response will appear here.</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
+                <div className="flex flex-col gap-y-2 p-2 group-data-[collapsible=icon]:hidden">
+                     <Separator className="my-2" />
+                     <label className="text-sm font-semibold px-2">AI Organizer</label>
+                     <Textarea
+                        placeholder="e.g., 'List assets needing inspection...'"
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        className="min-h-[80px]"
+                        disabled={isLoading}
+                    />
+                    <Button onClick={handleAiSubmit} disabled={isLoading || !prompt} size="sm">
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Generate
+                    </Button>
+                    <div className="mt-2">
+                        <label className="text-xs text-muted-foreground px-2">AI Response</label>
+                        <div className="p-2 mt-1 border rounded-md min-h-[80px] bg-muted/50 text-sm">
+                            {isLoading ? (
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-5/6" />
+                                </div>
+                            ) : response ? (
+                                <p>{response}</p>
+                            ) : (
+                                <p className="text-muted-foreground">The AI's response will appear here.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
