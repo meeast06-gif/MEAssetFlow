@@ -25,9 +25,9 @@ export default function Loading() {
               </CardHeader>
               <CardContent>
                 <Skeleton className="h-8 w-12" />
-                <p className="text-xs text-muted-foreground mt-2">
+                <div className="text-xs text-muted-foreground mt-2">
                   <Skeleton className="h-4 w-32" />
-                </p>
+                </div>
               </CardContent>
             </Card>
           ))}
