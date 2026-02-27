@@ -36,8 +36,9 @@ export default function ModuleDashboardPage() {
   const { data: inventoryAssets, isLoading: inventoryLoading } = useCollection<InventoryAsset>(inventoryQuery);
 
   const dashboardValues = useMemo(() => {
-    const counts = (inventoryAssets || []).reduce((acc, asset) => {
+    const stats = (inventoryAssets || []).reduce((acc, asset) => {
       if (asset) {
+        // Status counts
         if (typeof asset.status === 'string') {
           const status = asset.status.trim().toLowerCase();
           if (status.includes('assign')) {
@@ -48,20 +49,36 @@ export default function ModuleDashboardPage() {
               acc.dispose++;
           }
         }
+
+        // Net book value $0 count
         if (asset.net_book_value === '0') {
-          acc.netBookValue++;
+          acc.netBookValueZeroCount++;
+        }
+        
+        // Total asset value sum
+        if (asset.net_book_value) {
+            const value = parseFloat(asset.net_book_value);
+            if (!isNaN(value)) {
+                acc.totalAssetValue += value;
+            }
         }
       }
       return acc;
-    }, { assign: 0, decom: 0, dispose: 0, netBookValue: 0 });
+    }, { 
+        assign: 0, 
+        decom: 0, 
+        dispose: 0, 
+        netBookValueZeroCount: 0,
+        totalAssetValue: 0
+    });
 
     return {
         total: inventoryAssets?.length || 0,
-        assign: counts.assign,
-        decom: counts.decom,
-        dispose: counts.dispose,
-        totalAssetValue: 0,
-        netBookValue: counts.netBookValue,
+        assign: stats.assign,
+        decom: stats.decom,
+        dispose: stats.dispose,
+        totalAssetValue: stats.totalAssetValue,
+        netBookValue: stats.netBookValueZeroCount,
         inspection: 0,
         servicing: 0,
     };
