@@ -21,7 +21,7 @@ import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, Chevron
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-function ModuleSidebar({ slug, moduleName }: { slug: string, moduleName: string }) {
+function ModuleSidebar({ slug }: { slug: string }) {
     const pathname = usePathname();
     const { state } = useSidebar();
 
@@ -37,13 +37,13 @@ function ModuleSidebar({ slug, moduleName }: { slug: string, moduleName: string 
             <SidebarHeader className="p-0">
                  <div className="flex h-12 items-center justify-between p-2">
                     <h2 className="text-lg font-semibold px-2 group-data-[collapsible=icon]:hidden truncate">
-                        {moduleName}
+                        <span className="bg-gradient-to-r from-orange-300 via-red-500 to-red-600 bg-clip-text text-transparent drop-shadow-sm brightness-110 saturate-125">
+                            ME Asset Flow
+                        </span>
                     </h2>
-                    <SidebarTrigger asChild>
-                         <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <ChevronsRight className="group-data-[state=expanded]:hidden" />
-                            <ChevronsLeft className="group-data-[state=collapsed]:hidden" />
-                         </Button>
+                    <SidebarTrigger>
+                         <ChevronsRight className="group-data-[state=expanded]:hidden" />
+                         <ChevronsLeft className="group-data-[state=collapsed]:hidden" />
                     </SidebarTrigger>
                 </div>
             </SidebarHeader>
@@ -102,19 +102,13 @@ export default function ModuleLayout({
     }
   }, [user, loading, router]);
 
-  const moduleName = useMemo(() => {
-    if (!slug) return "";
-    // A simple un-slugify. This could be improved.
-    return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/T0/g, 'T0');
-  }, [slug]);
-
   if (loading || !user) {
     return <Loading />;
   }
 
   return (
     <SidebarProvider>
-        <ModuleSidebar slug={slug} moduleName={moduleName} />
+        <ModuleSidebar slug={slug} />
         <SidebarInset>
             {children}
         </SidebarInset>
