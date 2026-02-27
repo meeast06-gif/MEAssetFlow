@@ -71,14 +71,13 @@ function ModuleSidebar({ slug, moduleName }: { slug: string, moduleName: string 
 
 export default function ModuleLayout({
   children,
-  params,
+  params: { slug },
 }: {
   children: React.ReactNode;
   params: { slug: string };
 }) {
   const { user, loading } = useUser();
   const router = useRouter();
-  const { slug } = params;
 
   useEffect(() => {
     if (!loading && !user) {

@@ -11,10 +11,9 @@ import AiSummary from "@/components/module/ai-summary";
 import Loading from "./loading";
 
 
-export default function ModuleDashboardPage({ params }: { params: { slug: string } }) {
+export default function ModuleDashboardPage({ params: { slug } }: { params: { slug: string } }) {
   const firestore = useFirestore();
   const { user } = useUser();
-  const { slug } = params;
 
   const assetsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
