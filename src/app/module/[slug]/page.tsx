@@ -5,13 +5,13 @@ import { useParams } from "next/navigation";
 import { useUser } from "@/firebase";
 import PageHeader from "@/components/module/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Sigma, Truck, ArchiveRestore, CircleOff, Wrench, ClipboardCheck } from "lucide-react";
+import { Sigma, UserPlus, ArchiveRestore, CircleOff, Wrench, ClipboardCheck } from "lucide-react";
 import Loading from "./loading";
 import { getModuleNameFromSlug } from "@/lib/utils";
 
 const dashboardItems = [
   { title: "Total Asset", icon: Sigma, description: "Total assets registered" },
-  { title: "Assign", icon: Truck, description: "Assets currently assigned" },
+  { title: "Assign", icon: UserPlus, description: "Assets currently assigned" },
   { title: "Decom", icon: ArchiveRestore, description: "Assets decommissioned" },
   { title: "Dispose", icon: CircleOff, description: "Assets disposed of" },
   { title: "Inspection", icon: ClipboardCheck, description: "Assets due for inspection" },
