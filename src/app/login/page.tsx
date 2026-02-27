@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { useAuth, useUser, useFirestore } from '@/firebase';
+import { useAuth, useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,44 +43,53 @@ export default function LoginPage() {
 
     setIsLoggingIn(true);
     const email = 'meaf@assetflow.app';
-    const password = 'password2026'; // Firebase requires a password of at least 6 characters.
+    const password = 'password2026';
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        // Successful sign-in will be detected by useUser and trigger redirect.
+        // On success, the useUser hook's effect will handle the redirect.
     } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
+        // If user does not exist (or another invalid credential error), try to create the account.
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
             try {
-                // If user does not exist, create it.
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const newUser = userCredential.user;
-                // Create user profile in Firestore
                 if (newUser) {
                     const userDocRef = doc(firestore, 'users', newUser.uid);
-                    await setDoc(userDocRef, {
+                    // Create user profile in Firestore, with specific error handling for this operation.
+                    setDoc(userDocRef, {
                         email: newUser.email,
                         displayName: 'MEAF User',
                         photoURL: '',
+                    }).catch(serverError => {
+                        const permissionError = new FirestorePermissionError({
+                            path: userDocRef.path,
+                            operation: 'create',
+                            requestResourceData: { email: newUser.email, displayName: 'MEAF User', photoURL: '' }
+                        });
+                        errorEmitter.emit('permission-error', permissionError);
                     });
                 }
+                // `createUserWithEmailAndPassword` signs the user in, so the useUser hook will now trigger the redirect.
             } catch (creationError: any) {
+                // This catch is for when account creation itself fails.
                 setIsLoggingIn(false);
                 toast({
                     variant: "destructive",
-                    title: "Setup Error",
-                    description: `Could not create the necessary user account: ${creationError.message}`,
+                    title: "Account Setup Failed",
+                    description: `An error occurred during initial setup: ${creationError.message}`,
                 });
             }
         } else {
+            // Handle other sign-in errors (e.g., network issue, different wrong password error).
             setIsLoggingIn(false);
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: error.message || "An unexpected error occurred. Please try again.",
+                description: "Please check your credentials or network connection.",
             });
         }
     }
-    // No need to set isLoggingIn to false here on success, as the component will redirect and unmount.
   };
   
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
