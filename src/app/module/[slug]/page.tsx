@@ -17,7 +17,7 @@ const dashboardItems = [
   { title: "Decom", icon: ArchiveRestore, description: "Assets decommissioned", key: "decom" },
   { title: "Dispose", icon: CircleOff, description: "Assets disposed of", key: "dispose" },
   { title: "Total Asset value", icon: DollarSign, description: "Total value of all assets", key: "totalAssetValue" },
-  { title: "Net book Value", icon: Book, description: "Total net book value", key: "netBookValue" },
+  { title: "Net Book Value $0", icon: Book, description: "Assets with a net book value of $0", key: "netBookValue" },
   { title: "Inspection", icon: ClipboardCheck, description: "Assets due for inspection", key: "inspection" },
   { title: "Servicing", icon: Wrench, description: "Assets requiring servicing", key: "servicing" },
 ];
@@ -37,18 +37,23 @@ export default function ModuleDashboardPage() {
 
   const dashboardValues = useMemo(() => {
     const counts = (inventoryAssets || []).reduce((acc, asset) => {
-      if (asset && typeof asset.status === 'string') {
-        const status = asset.status.trim().toLowerCase();
-        if (status.includes('assign')) {
-            acc.assign++;
-        } else if (status.includes('decom')) {
-            acc.decom++;
-        } else if (status.includes('dispose')) {
-            acc.dispose++;
+      if (asset) {
+        if (typeof asset.status === 'string') {
+          const status = asset.status.trim().toLowerCase();
+          if (status.includes('assign')) {
+              acc.assign++;
+          } else if (status.includes('decom')) {
+              acc.decom++;
+          } else if (status.includes('dispose')) {
+              acc.dispose++;
+          }
+        }
+        if (asset.net_book_value === '0') {
+          acc.netBookValue++;
         }
       }
       return acc;
-    }, { assign: 0, decom: 0, dispose: 0 });
+    }, { assign: 0, decom: 0, dispose: 0, netBookValue: 0 });
 
     return {
         total: inventoryAssets?.length || 0,
@@ -56,7 +61,7 @@ export default function ModuleDashboardPage() {
         decom: counts.decom,
         dispose: counts.dispose,
         totalAssetValue: 0,
-        netBookValue: 0,
+        netBookValue: counts.netBookValue,
         inspection: 0,
         servicing: 0,
     };
@@ -89,7 +94,7 @@ export default function ModuleDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {item.key === 'totalAssetValue' || item.key === 'netBookValue' ? formatCurrency(value) : value}
+                    {item.key === 'totalAssetValue' ? formatCurrency(value) : value}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {item.description}
