@@ -92,7 +92,7 @@ function ModuleSidebar({ slug }: { slug: string }) {
                     />
                     <Button onClick={handleAiSubmit} disabled={isLoading || !prompt} size="sm">
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Generate
+                        Launch
                     </Button>
                     <div className="mt-2">
                         <label className="text-xs text-muted-foreground px-2">AI Response</label>
