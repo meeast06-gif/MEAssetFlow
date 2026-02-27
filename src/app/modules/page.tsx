@@ -39,12 +39,14 @@ export default function ModulesPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {modules.map((moduleName) => (
-                    <Link href="/dashboard" key={moduleName} legacyBehavior>
-                        <a className="block p-1 bg-gradient-to-r from-orange-300 via-red-500 to-red-600 rounded-xl transform hover:scale-105 transition-transform duration-300">
-                           <div className="h-full w-full bg-card rounded-lg p-6 flex items-center justify-center text-center min-h-[120px]">
-                                <h2 className="text-lg font-semibold text-card-foreground">{moduleName}</h2>
-                           </div>
-                        </a>
+                    <Link 
+                        href="/dashboard" 
+                        key={moduleName} 
+                        className="block p-1 bg-gradient-to-r from-orange-300 via-red-500 to-red-600 rounded-xl transform hover:scale-105 transition-transform duration-300"
+                    >
+                       <div className="h-full w-full bg-card rounded-lg p-6 flex items-center justify-center text-center min-h-[120px]">
+                            <h2 className="text-lg font-semibold text-card-foreground">{moduleName}</h2>
+                       </div>
                     </Link>
                 ))}
             </div>
