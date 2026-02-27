@@ -27,7 +27,7 @@ function ModuleSidebar({ slug }: { slug: string }) {
 
     const menuItems = [
         { href: `/module/${slug}`, label: 'Dashboard', icon: LayoutDashboard },
-        { href: '#', label: 'Inventory', icon: Archive },
+        { href: `/module/${slug}/inventory`, label: 'Inventory', icon: Archive },
         { href: '#', label: 'Inspection', icon: ClipboardCheck },
         { href: '#', label: 'Servicing', icon: Wrench },
     ];
