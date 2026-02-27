@@ -5,12 +5,12 @@ import { useParams } from "next/navigation";
 import { useUser } from "@/firebase";
 import PageHeader from "@/components/module/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { DollarSign, Truck, ArchiveRestore, CircleOff, Wrench, ClipboardCheck } from "lucide-react";
+import { Sigma, Truck, ArchiveRestore, CircleOff, Wrench, ClipboardCheck } from "lucide-react";
 import Loading from "./loading";
 import { getModuleNameFromSlug } from "@/lib/utils";
 
 const dashboardItems = [
-  { title: "Total Asset", icon: DollarSign, description: "Total assets registered" },
+  { title: "Total Asset", icon: Sigma, description: "Total assets registered" },
   { title: "Assign", icon: Truck, description: "Assets currently assigned" },
   { title: "Decom", icon: ArchiveRestore, description: "Assets decommissioned" },
   { title: "Dispose", icon: CircleOff, description: "Assets disposed of" },
