@@ -22,6 +22,7 @@ import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { InventoryAsset } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
 
 const tableHeaders = [
     "Order",
@@ -74,7 +75,22 @@ export default function InventoryPage() {
     return collection(firestore, `modules/${slug}/inventory_list`);
   }, [firestore, slug]);
 
-  const { data: inventoryAssets, isLoading } = useCollection<InventoryAsset>(inventoryQuery);
+  const { data: rawInventoryAssets, isLoading } = useCollection<any>(inventoryQuery);
+
+  const inventoryAssets: InventoryAsset[] | null = useMemo(() => {
+    if (!rawInventoryAssets) {
+      return null;
+    }
+    return rawInventoryAssets.map((asset) => {
+      const newAsset: { [key: string]: any } = { ...asset };
+      if (asset.in_service_date && asset.in_service_date.toDate) {
+        newAsset.in_service_date = format(asset.in_service_date.toDate(), "P");
+      } else if (typeof asset.in_service_date !== 'string') {
+        newAsset.in_service_date = '';
+      }
+      return newAsset as InventoryAsset;
+    });
+  }, [rawInventoryAssets]);
 
   const moduleName = useMemo(() => {
     if (!slug) return "Inventory";
