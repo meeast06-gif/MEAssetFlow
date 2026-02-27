@@ -19,12 +19,12 @@ const modules = [
 
 const slugify = (text: string) => {
     return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')           // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-        .replace(/^-+/, '')             // Trim - from start of text
-        .replace(/-+$/, '');            // Trim - from end of text
-}
+        .replace(/[\s/]+/g, '_') // Replace spaces and slashes with a single underscore
+        .replace(/[^\w_]+/g, '')   // Remove all non-word characters except underscore
+        .replace(/__+/g, '_')      // Replace multiple underscores with a single one
+        .replace(/^_+/, '')        // Trim leading underscores
+        .replace(/_+$/, '');       // Trim trailing underscores
+};
 
 export default function ModulesPage() {
     const { user, loading } = useUser();

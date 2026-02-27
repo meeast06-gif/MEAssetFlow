@@ -94,7 +94,7 @@ export default function InventoryPage() {
 
   const moduleName = useMemo(() => {
     if (!slug) return "Inventory";
-    const baseName = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const baseName = slug.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     return `${baseName} - Inventory`;
   }, [slug]);
 
