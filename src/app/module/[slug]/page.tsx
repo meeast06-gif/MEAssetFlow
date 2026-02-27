@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Sigma, UserPlus, ArchiveRestore, CircleOff, Wrench, ClipboardCheck, DollarSign, Book } from "lucide-react";
 import Loading from "./loading";
 import { getModuleNameFromSlug, formatCurrency } from "@/lib/utils";
+import type { InventoryAsset } from "@/lib/definitions";
 
 const dashboardItems = [
   { title: "Total Asset", icon: Sigma, description: "Total assets registered", key: "total" },
@@ -32,18 +33,32 @@ export default function ModuleDashboardPage() {
     return collection(firestore, `modules/${slug}/inventory_list`);
   }, [firestore, slug]);
 
-  const { data: inventoryAssets, isLoading: inventoryLoading } = useCollection(inventoryQuery);
+  const { data: inventoryAssets, isLoading: inventoryLoading } = useCollection<InventoryAsset>(inventoryQuery);
 
-  const dashboardValues = useMemo(() => ({
-    total: inventoryAssets?.length || 0,
-    assign: 0,
-    decom: 0,
-    dispose: 0,
-    totalAssetValue: 0,
-    netBookValue: 0,
-    inspection: 0,
-    servicing: 0,
-  }), [inventoryAssets]);
+  const dashboardValues = useMemo(() => {
+    const counts = (inventoryAssets || []).reduce((acc, asset) => {
+        const status = asset.status?.toLowerCase().trim();
+        if (status === 'assign') {
+            acc.assign++;
+        } else if (status === 'decom') {
+            acc.decom++;
+        } else if (status === 'dispose') {
+            acc.dispose++;
+        }
+        return acc;
+    }, { assign: 0, decom: 0, dispose: 0 });
+
+    return {
+        total: inventoryAssets?.length || 0,
+        assign: counts.assign,
+        decom: counts.decom,
+        dispose: counts.dispose,
+        totalAssetValue: 0,
+        netBookValue: 0,
+        inspection: 0,
+        servicing: 0,
+    };
+  }, [inventoryAssets]);
 
   const moduleName = useMemo(() => {
     if (!slug) return "";
