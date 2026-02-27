@@ -39,11 +39,11 @@ export default function ModuleDashboardPage() {
     const counts = (inventoryAssets || []).reduce((acc, asset) => {
       if (asset && typeof asset.status === 'string') {
         const status = asset.status.trim().toLowerCase();
-        if (status === 'assign') {
+        if (status.includes('assign')) {
             acc.assign++;
-        } else if (status === 'decom') {
+        } else if (status.includes('decom')) {
             acc.decom++;
-        } else if (status === 'dispose') {
+        } else if (status.includes('dispose')) {
             acc.dispose++;
         }
       }
