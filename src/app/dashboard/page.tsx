@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { collection, orderBy, query } from "firebase/firestore";
-import { useCollection, useFirestore, useUser } from "@/firebase";
+import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebase";
 import type { Asset } from "@/lib/definitions";
 import PageHeader from "@/components/dashboard/page-header";
 import SummaryCards from "@/components/dashboard/summary-cards";
@@ -15,19 +15,23 @@ export default function DashboardPage() {
   const firestore = useFirestore();
   const { user } = useUser();
 
-  const assetsQuery = useMemo(() => {
+  const assetsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(collection(firestore, `users/${user.uid}/assets`), orderBy('acquisitionDate', 'desc'));
   }, [firestore, user]);
 
-  const { data: assets, loading } = useCollection<Asset>(assetsQuery, {
-    snapshotListenOptions: { includeMetadataChanges: true },
-    idField: 'id',
-    transform: (data: any) => ({
-      ...data,
-      acquisitionDate: data.acquisitionDate?.toDate ? data.acquisitionDate.toDate().toISOString() : new Date().toISOString(),
-    })
-  });
+  const { data: rawAssets, loading } = useCollection<any>(assetsQuery);
+
+  const assets: Asset[] | null = useMemo(() => {
+    if (!rawAssets) {
+      return null;
+    }
+    return rawAssets.map((asset) => ({
+      ...asset,
+      acquisitionDate: asset.acquisitionDate?.toDate ? asset.acquisitionDate.toDate().toISOString() : new Date().toISOString(),
+    }));
+  }, [rawAssets]);
+
 
   if (loading || !user) {
     return <Loading />;
