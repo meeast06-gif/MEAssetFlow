@@ -8,23 +8,8 @@ import Loading from '@/app/loading';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Power } from 'lucide-react';
+import { modules, slugify } from '@/lib/utils';
 
-
-const modules = [
-    "Machinery Maintenance T02_13",
-    "Plant Maintenance T02_11",
-    "CAD/CAM DesignLab T01_23",
-    "Electrical Fundamental"
-];
-
-const slugify = (text: string) => {
-    return text.toString().toLowerCase()
-        .replace(/[\s/]+/g, '_') // Replace spaces and slashes with a single underscore
-        .replace(/[^\w_]+/g, '')   // Remove all non-word characters except underscore
-        .replace(/__+/g, '_')      // Replace multiple underscores with a single one
-        .replace(/^_+/, '')        // Trim leading underscores
-        .replace(/_+$/, '');       // Trim trailing underscores
-};
 
 export default function ModulesPage() {
     const { user, loading } = useUser();

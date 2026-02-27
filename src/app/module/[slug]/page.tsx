@@ -7,6 +7,7 @@ import PageHeader from "@/components/module/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DollarSign, Truck, ArchiveRestore, CircleOff, Wrench, ClipboardCheck } from "lucide-react";
 import Loading from "./loading";
+import { getModuleNameFromSlug } from "@/lib/utils";
 
 const dashboardItems = [
   { title: "Total Asset", icon: DollarSign, description: "Total assets registered" },
@@ -24,7 +25,7 @@ export default function ModuleDashboardPage() {
 
   const moduleName = useMemo(() => {
     if (!slug) return "";
-    return slug.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return getModuleNameFromSlug(slug);
   }, [slug]);
 
   if (loading || !user) {

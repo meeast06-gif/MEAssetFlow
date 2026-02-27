@@ -23,6 +23,7 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { InventoryAsset } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import { getModuleNameFromSlug } from '@/lib/utils';
 
 const tableHeaders = [
     "Order",
@@ -94,7 +95,7 @@ export default function InventoryPage() {
 
   const moduleName = useMemo(() => {
     if (!slug) return "Inventory";
-    const baseName = slug.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    const baseName = getModuleNameFromSlug(slug);
     return `${baseName} - Inventory`;
   }, [slug]);
 
