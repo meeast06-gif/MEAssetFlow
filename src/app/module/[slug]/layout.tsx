@@ -33,9 +33,9 @@ function ModuleSidebar({ slug }: { slug: string }) {
     ];
 
     return (
-        <Sidebar>
+        <Sidebar collapsible="icon">
             <SidebarHeader className="p-0">
-                 <div className="flex h-12 items-center justify-between p-2">
+                 <div className="flex h-12 items-center justify-between group-data-[collapsible=icon]:justify-center p-2">
                     <h2 className="text-lg font-semibold px-2 group-data-[collapsible=icon]:hidden truncate">
                         <span className="bg-gradient-to-r from-orange-300 via-red-500 to-red-600 bg-clip-text text-transparent drop-shadow-sm brightness-110 saturate-125">
                             ME Asset Flow
