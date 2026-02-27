@@ -1,24 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { useAuth, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
-import { PlusCircle, Power } from "lucide-react";
-import { AssetForm } from "./asset-form";
+import { Power } from "lucide-react";
 
 export default function PageHeader() {
-  const [open, setOpen] = useState(false);
   const auth = useAuth();
   const { user } = useUser();
   const router = useRouter();
@@ -38,22 +27,6 @@ export default function PageHeader() {
         </span>
       </h1>
       <div className="ml-auto flex items-center gap-4">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-1">
-              <PlusCircle className="h-4 w-4" />
-              Add Asset
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Add a New Asset</DialogTitle>
-            </DialogHeader>
-            <AssetForm
-              onSuccess={() => setOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
         {user && auth && (
            <Button
                 variant="ghost"
@@ -61,7 +34,7 @@ export default function PageHeader() {
                 onClick={handleSignOut}
                 aria-label="Sign Out"
             >
-                <Power className="h-6 w-6 text-destructive" />
+                <Power className="h-6 w-6 text-orange-500" />
             </Button>
         )}
       </div>
