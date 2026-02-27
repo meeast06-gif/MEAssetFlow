@@ -104,7 +104,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="bg-gradient-to-r from-orange-300 via-red-500 to-red-600 p-1">
+      <div className="bg-gradient-to-r from-orange-300 via-red-500 to-red-600 py-1">
         <div className="flex flex-col items-center gap-6 bg-card p-8">
           <div className="text-center">
             <h1 className="text-6xl font-bold tracking-tight">
