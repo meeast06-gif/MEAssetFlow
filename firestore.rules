@@ -27,5 +27,11 @@ service cloud.firestore {
       // Allow delete if the user is the owner
       allow delete: if isOwner(userId);
     }
+
+    // Rules for module inventory
+    match /modules/{moduleId}/inventory_list/{inventoryAssetId} {
+      // Allow authenticated users to read inventory data
+      allow get, list: if request.auth != null;
+    }
   }
 }

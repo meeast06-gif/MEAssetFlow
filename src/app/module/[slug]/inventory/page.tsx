@@ -18,6 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { collection } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import type { InventoryAsset } from '@/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const tableHeaders = [
     "Order",
@@ -38,10 +42,39 @@ const tableHeaders = [
     "remarks"
 ];
 
+// Mapping from table header to Firestore field name
+const headerToFieldMap: Record<string, keyof InventoryAsset | null> = {
+    "Order": null, // Special case for running number
+    "agency": "agency",
+    "ams_asset_id": "ams_asset_id",
+    "asset_category": "asset_category",
+    "asset_description": "asset_description",
+    "asset_group": "asset_group",
+    "end_user": "end_user",
+    "asset_useful_lifespan (month)": "asset_useful_lifespan__month_",
+    "remaining_lifespan": "remaining_lifespan",
+    "depreciation_amount": "depreciation_amount",
+    "net_book_value": "net_book_value",
+    "in_service_date": "in_service_date",
+    "status": "status",
+    "sensor_mac": "sensor_mac",
+    "sensor_pin": "sensor_pin",
+    "remarks": "remarks",
+};
+
 
 export default function InventoryPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const firestore = useFirestore();
+
+  const inventoryQuery = useMemoFirebase(() => {
+    if (!firestore || !slug) return null;
+    // The collection name in Firestore is the slug itself.
+    return collection(firestore, `modules/${slug}/inventory_list`);
+  }, [firestore, slug]);
+
+  const { data: inventoryAssets, isLoading } = useCollection<InventoryAsset>(inventoryQuery);
 
   const moduleName = useMemo(() => {
     if (!slug) return "Inventory";
@@ -69,11 +102,32 @@ export default function InventoryPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow>
-                                <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
-                                    No inventory data available.
-                                </TableCell>
-                            </TableRow>
+                            {isLoading ? (
+                                [...Array(5)].map((_, i) => (
+                                    <TableRow key={i}>
+                                        {tableHeaders.map(header => (
+                                            <TableCell key={header}><Skeleton className="h-5 w-full" /></TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : inventoryAssets && inventoryAssets.length > 0 ? (
+                                inventoryAssets.map((asset, index) => (
+                                    <TableRow key={asset.id}>
+                                        <TableCell>{index + 1}</TableCell>
+                                        {tableHeaders.slice(1).map(header => {
+                                            const fieldKey = headerToFieldMap[header];
+                                            const value = fieldKey ? asset[fieldKey] : '';
+                                            return <TableCell key={header}>{value ?? ''}</TableCell>;
+                                        })}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
+                                        No inventory data available.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </div>

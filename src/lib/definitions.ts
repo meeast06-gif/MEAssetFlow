@@ -26,3 +26,22 @@ export type Asset = {
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
+
+export type InventoryAsset = {
+  id: string;
+  agency?: string;
+  ams_asset_id?: string;
+  asset_category?: string;
+  asset_description?: string;
+  asset_group?: string;
+  asset_useful_lifespan__month_?: string;
+  depreciation_amount?: string;
+  end_user?: string;
+  in_service_date?: string;
+  net_book_value?: string;
+  remaining_lifespan?: string;
+  remarks?: string;
+  status?: string;
+  sensor_mac?: string;
+  sensor_pin?: string;
+};

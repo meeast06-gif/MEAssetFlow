@@ -79,6 +79,28 @@
         "createdAt",
         "updatedAt"
       ]
+    },
+    "InventoryAsset": {
+      "title": "Inventory Asset",
+      "description": "Represents a single asset within a module's inventory.",
+      "type": "object",
+      "properties": {
+        "agency": { "type": "string" },
+        "ams_asset_id": { "type": "string" },
+        "asset_category": { "type": "string" },
+        "asset_description": { "type": "string" },
+        "asset_group": { "type": "string" },
+        "asset_useful_lifespan__month_": { "type": "string" },
+        "depreciation_amount": { "type": "string" },
+        "end_user": { "type": "string" },
+        "in_service_date": { "type": "string", "format": "date-time" },
+        "net_book_value": { "type": "string" },
+        "remaining_lifespan": { "type": "string" },
+        "remarks": { "type": "string" },
+        "status": { "type": "string" },
+        "sensor_mac": { "type": "string" },
+        "sensor_pin": { "type": "string" }
+      }
     }
   },
   "auth": {
@@ -98,6 +120,12 @@
         "$ref": "#/entities/Asset"
       },
       "description": "Stores the collection of assets owned by a specific user."
+    },
+    "/modules/{moduleId}/inventory_list/{inventoryAssetId}": {
+      "schema": {
+        "$ref": "#/entities/InventoryAsset"
+      },
+      "description": "Stores the collection of inventory assets for a specific module."
     }
   }
 }
