@@ -49,7 +49,7 @@ export default function ModulesPage() {
                         onClick={handleSignOut}
                         aria-label="Sign Out"
                     >
-                        <Power className="h-6 w-6 text-destructive" />
+                        <Power className="h-6 w-6 text-orange-500" />
                     </Button>
                 </div>
             )}
