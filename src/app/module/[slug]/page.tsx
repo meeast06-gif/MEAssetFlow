@@ -48,6 +48,12 @@ export default function ModuleDashboardPage() {
           } else if (status.includes('dispose')) {
               acc.dispose++;
           }
+          if (status.includes('inspection')) {
+              acc.inspection++;
+          }
+          if (status.includes('servicing')) {
+              acc.servicing++;
+          }
         }
 
         // Net book value $0 count
@@ -69,7 +75,9 @@ export default function ModuleDashboardPage() {
         decom: 0, 
         dispose: 0, 
         netBookValueZeroCount: 0,
-        totalAssetValue: 0
+        totalAssetValue: 0,
+        inspection: 0,
+        servicing: 0
     });
 
     return {
@@ -79,8 +87,8 @@ export default function ModuleDashboardPage() {
         dispose: stats.dispose,
         totalAssetValue: stats.totalAssetValue,
         netBookValue: stats.netBookValueZeroCount,
-        inspection: 0,
-        servicing: 0,
+        inspection: stats.inspection,
+        servicing: stats.servicing,
     };
   }, [inventoryAssets]);
 
