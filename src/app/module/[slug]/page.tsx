@@ -16,7 +16,7 @@ const dashboardItems = [
   { title: "Assign", icon: UserPlus, description: "Assets currently assigned", key: "assign" },
   { title: "Decom", icon: ArchiveRestore, description: "Assets decommissioned", key: "decom" },
   { title: "Dispose", icon: CircleOff, description: "Assets disposed of", key: "dispose" },
-  { title: "Total Asset value", icon: DollarSign, description: "Total value of all assets", key: "totalAssetValue" },
+  { title: "Total Asset Value", icon: DollarSign, description: "Total value of all assets", key: "totalAssetValue" },
   { title: "Net Book Value $0", icon: Book, description: "Assets with a net book value of $0", key: "netBookValue" },
   { title: "Inspection", icon: ClipboardCheck, description: "Assets due for inspection", key: "inspection" },
   { title: "Servicing", icon: Wrench, description: "Assets requiring servicing", key: "servicing" },
