@@ -17,7 +17,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid } from 'lucide-react';
+import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +30,7 @@ function ModuleSidebar({ slug }: { slug: string }) {
         { href: `/module/${slug}/inventory`, label: 'Inventory', icon: Archive },
         { href: `/module/${slug}/inspection`, label: 'Inspection', icon: ClipboardCheck },
         { href: `/module/${slug}/servicing`, label: 'Servicing', icon: Wrench },
+        { href: `/module/${slug}/ai-organizer`, label: 'AI Organizer', icon: Sparkles },
     ];
 
     return (
