@@ -78,6 +78,7 @@ export default function ModuleLayout({
 }) {
   const { user, loading } = useUser();
   const router = useRouter();
+  const { slug } = params;
 
   useEffect(() => {
     if (!loading && !user) {
@@ -87,8 +88,8 @@ export default function ModuleLayout({
 
   const moduleName = useMemo(() => {
     // A simple un-slugify. This could be improved.
-    return params.slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/T0/g, 'T0');
-  }, [params]);
+    return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ').replace(/T0/g, 'T0');
+  }, [slug]);
 
   if (loading || !user) {
     return <Loading />;
@@ -96,7 +97,7 @@ export default function ModuleLayout({
 
   return (
     <SidebarProvider>
-        <ModuleSidebar slug={params.slug} moduleName={moduleName} />
+        <ModuleSidebar slug={slug} moduleName={moduleName} />
         <SidebarInset>
             {children}
         </SidebarInset>

@@ -14,6 +14,7 @@ import Loading from "./loading";
 export default function ModuleDashboardPage({ params }: { params: { slug: string } }) {
   const firestore = useFirestore();
   const { user } = useUser();
+  const { slug } = params;
 
   const assetsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -40,8 +41,8 @@ export default function ModuleDashboardPage({ params }: { params: { slug: string
   const validAssets = assets || [];
   
   const moduleName = useMemo(() => {
-    return params.slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  }, [params]);
+    return slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  }, [slug]);
 
   return (
     <div className="flex min-h-screen w-full flex-col">
