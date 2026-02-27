@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
 import PageHeader from "@/components/module/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Sigma, UserPlus, ArchiveRestore, CircleOff, Wrench, ClipboardCheck } from "lucide-react";
@@ -10,25 +11,44 @@ import Loading from "./loading";
 import { getModuleNameFromSlug } from "@/lib/utils";
 
 const dashboardItems = [
-  { title: "Total Asset", icon: Sigma, description: "Total assets registered" },
-  { title: "Assign", icon: UserPlus, description: "Assets currently assigned" },
-  { title: "Decom", icon: ArchiveRestore, description: "Assets decommissioned" },
-  { title: "Dispose", icon: CircleOff, description: "Assets disposed of" },
-  { title: "Inspection", icon: ClipboardCheck, description: "Assets due for inspection" },
-  { title: "Servicing", icon: Wrench, description: "Assets requiring servicing" },
+  { title: "Total Asset", icon: Sigma, description: "Total assets registered", key: "total" },
+  { title: "Assign", icon: UserPlus, description: "Assets currently assigned", key: "assign" },
+  { title: "Decom", icon: ArchiveRestore, description: "Assets decommissioned", key: "decom" },
+  { title: "Dispose", icon: CircleOff, description: "Assets disposed of", key: "dispose" },
+  { title: "Inspection", icon: ClipboardCheck, description: "Assets due for inspection", key: "inspection" },
+  { title: "Servicing", icon: Wrench, description: "Assets requiring servicing", key: "servicing" },
 ];
 
 export default function ModuleDashboardPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
+  const firestore = useFirestore();
+
+  const inventoryQuery = useMemoFirebase(() => {
+    if (!firestore || !slug) return null;
+    return collection(firestore, `modules/${slug}/inventory_list`);
+  }, [firestore, slug]);
+
+  const { data: inventoryAssets, isLoading: inventoryLoading } = useCollection(inventoryQuery);
+
+  const dashboardValues = useMemo(() => ({
+    total: inventoryAssets?.length || 0,
+    assign: 0,
+    decom: 0,
+    dispose: 0,
+    inspection: 0,
+    servicing: 0,
+  }), [inventoryAssets]);
 
   const moduleName = useMemo(() => {
     if (!slug) return "";
     return getModuleNameFromSlug(slug);
   }, [slug]);
 
-  if (loading || !user) {
+  const isLoading = userLoading || inventoryLoading;
+
+  if (isLoading || !user) {
     return <Loading />;
   }
 
@@ -44,7 +64,7 @@ export default function ModuleDashboardPage() {
                 <item.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
+                <div className="text-2xl font-bold">{dashboardValues[item.key as keyof typeof dashboardValues]}</div>
                 <p className="text-xs text-muted-foreground">
                   {item.description}
                 </p>
