@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import PageHeader from "@/components/module/page-header";
 import {
@@ -24,6 +24,7 @@ import type { InventoryAsset } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { getModuleNameFromSlug } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 const tableHeaders = [
     "Order",
@@ -69,6 +70,7 @@ export default function InventoryPage() {
   const params = useParams();
   const slug = params.slug as string;
   const firestore = useFirestore();
+  const [filter, setFilter] = useState('');
 
   const inventoryQuery = useMemoFirebase(() => {
     if (!firestore || !slug) return null;
@@ -82,7 +84,8 @@ export default function InventoryPage() {
     if (!rawInventoryAssets) {
       return null;
     }
-    return rawInventoryAssets.map((asset) => {
+
+    const formattedAssets = rawInventoryAssets.map((asset) => {
       const newAsset: { [key: string]: any } = { ...asset };
       if (asset.in_service_date && asset.in_service_date.toDate) {
         newAsset.in_service_date = format(asset.in_service_date.toDate(), "P");
@@ -91,7 +94,23 @@ export default function InventoryPage() {
       }
       return newAsset as InventoryAsset;
     });
-  }, [rawInventoryAssets]);
+
+    if (!filter) {
+        return formattedAssets;
+    }
+
+    const lowercasedFilter = filter.toLowerCase();
+
+    return formattedAssets.filter(asset => {
+        return (
+            asset.ams_asset_id?.toLowerCase().includes(lowercasedFilter) ||
+            asset.asset_category?.toLowerCase().includes(lowercasedFilter) ||
+            asset.asset_description?.toLowerCase().includes(lowercasedFilter) ||
+            asset.end_user?.toLowerCase().includes(lowercasedFilter) ||
+            asset.net_book_value?.toLowerCase().includes(lowercasedFilter)
+        );
+    });
+  }, [rawInventoryAssets, filter]);
 
   const moduleName = useMemo(() => {
     if (!slug) return "Inventory";
@@ -109,6 +128,14 @@ export default function InventoryPage() {
                 <CardDescription>A complete list of all assets in the inventory.</CardDescription>
             </CardHeader>
             <CardContent>
+                <div className="mb-4">
+                    <Input
+                        placeholder="Filter by ID, category, description, end user, or value..."
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        className="max-w-md"
+                    />
+                </div>
                 <div className="w-full overflow-auto">
                     <Table>
                         <TableHeader>
@@ -141,7 +168,9 @@ export default function InventoryPage() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
-                                        No inventory data available.
+                                        {rawInventoryAssets && rawInventoryAssets.length > 0
+                                            ? 'No assets match your filter.'
+                                            : 'No inventory data available.'}
                                     </TableCell>
                                 </TableRow>
                             )}
