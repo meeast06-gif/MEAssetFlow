@@ -2,6 +2,8 @@
 
 import { Asset } from "@/lib/definitions";
 import { summarizeAssetPortfolio } from "@/ai/flows/summarize-asset-portfolio-flow";
+import { organizeInventory, OrganizeInventoryOutput } from "@/ai/flows/organize-inventory-flow";
+import { modules, slugify } from "./utils";
 
 // This server action is now only responsible for the AI summary generation.
 // All direct Firestore operations have been moved to client components.
@@ -29,5 +31,29 @@ export async function getAiSummary(assets: Asset[]) {
   } catch (error) {
     console.error("Error getting AI summary: ", error);
     return { error: "Failed to generate AI summary. Please try again later." };
+  }
+}
+
+// New Server Action for the AI Organizer
+export async function getAiOrganizerAction(
+  prompt: string,
+  currentModuleSlug: string
+): Promise<OrganizeInventoryOutput> {
+  try {
+    const availableModules = modules.map(name => ({ name, slug: slugify(name) }));
+    
+    const result = await organizeInventory({
+      prompt,
+      currentModuleSlug,
+      availableModules,
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error in getAiOrganizerAction: ", error);
+    return {
+      action: 'none',
+      reasoning: "I'm sorry, I encountered an error while processing your request. Please try again."
+    };
   }
 }

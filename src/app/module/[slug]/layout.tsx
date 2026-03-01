@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter, useParams } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import Loading from './loading';
 import {
   SidebarProvider,
@@ -22,21 +22,69 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from '@/components/ui/separator';
+import { getAiOrganizerAction } from '@/lib/actions';
+import { findAsset, moveAsset } from '@/lib/inventory-actions';
+import { getModuleNameFromSlug } from '@/lib/utils';
 
 
 function ModuleSidebar({ slug }: { slug: string }) {
     const pathname = usePathname();
+    const firestore = useFirestore();
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [response, setResponse] = useState('');
 
     const handleAiSubmit = async () => {
-        // Placeholder for AI logic
+        if (!prompt || !firestore) return;
+
         setIsLoading(true);
         setResponse('');
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate AI response time
-        setResponse(`This is a simulated response to your prompt: "${prompt}"`);
-        setIsLoading(false);
+
+        try {
+            const result = await getAiOrganizerAction(prompt, slug);
+
+            if (result.action === 'move') {
+                setResponse(`Understood. Searching for the asset to move...`);
+                
+                const assetsToMove = await findAsset(firestore, result.sourceModuleSlug, result.assetIdentifier);
+
+                if (assetsToMove.length === 0) {
+                    setResponse(`Could not find a matching asset to move. Please be more specific with the asset ID, description, or end user.`);
+                } else if (assetsToMove.length > 1) {
+                    setResponse(`Found multiple matching assets. Please provide a more specific identifier (like the 'ams_asset_id').`);
+                } else {
+                    const asset = assetsToMove[0];
+                    const sourceModuleName = getModuleNameFromSlug(result.sourceModuleSlug);
+                    const destModuleName = getModuleNameFromSlug(result.destinationModuleSlug);
+
+                    setResponse(`Found asset "${asset.asset_description || asset.ams_asset_id}". Moving it from ${sourceModuleName} to ${destModuleName}...`);
+                    
+                    const moveResult = await moveAsset(firestore, result.sourceModuleSlug, result.destinationModuleSlug, asset);
+
+                    if (moveResult.success) {
+                        setResponse(`Successfully moved asset "${asset.asset_description || asset.ams_asset_id}" to ${destModuleName}.`);
+                    } else {
+                        setResponse(`Failed to move asset. Error: ${moveResult.error}`);
+                    }
+                }
+
+            } else { // action === 'none'
+                setResponse(result.reasoning);
+            }
+
+        } catch (error) {
+            console.error("AI Organizer error:", error);
+            setResponse("Sorry, an unexpected error occurred.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleAiSubmit();
+      }
     };
 
     const menuItems = [
@@ -84,9 +132,10 @@ function ModuleSidebar({ slug }: { slug: string }) {
                      <Separator className="my-2" />
                      <label className="text-sm font-semibold px-2">AI Organizer</label>
                      <Textarea
-                        placeholder="e.g., 'List assets needing inspection...'"
+                        placeholder="e.g., 'Move asset [ID] to [Module]'"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         className="min-h-[80px]"
                         disabled={isLoading}
                     />
@@ -97,7 +146,7 @@ function ModuleSidebar({ slug }: { slug: string }) {
                     <div className="mt-2">
                         <label className="text-xs text-muted-foreground px-2">AI Response</label>
                         <div className="p-2 mt-1 border rounded-md min-h-[80px] bg-muted/50 text-sm">
-                            {isLoading ? (
+                            {isLoading && !response ? (
                                 <div className="space-y-2">
                                     <Skeleton className="h-4 w-full" />
                                     <Skeleton className="h-4 w-5/6" />

@@ -30,8 +30,8 @@ service cloud.firestore {
 
     // Rules for module inventory
     match /modules/{moduleId}/inventory_list/{inventoryAssetId} {
-      // Allow authenticated users to read inventory data
-      allow get, list: if request.auth != null;
+      // Allow authenticated users to read and write inventory data
+      allow read, write: if request.auth != null;
     }
   }
 }
