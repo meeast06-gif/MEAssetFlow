@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 // Schemas for the flow
-export const OrganizeInventoryInputSchema = z.object({
+const OrganizeInventoryInputSchema = z.object({
   prompt: z.string().describe("The user's natural language command."),
   currentModuleSlug: z.string().describe("The slug of the module the user is currently viewing."),
   availableModules: z.array(z.object({
@@ -38,7 +38,7 @@ const NoActionSchema = z.object({
     reasoning: z.string().describe("Explanation why no action was taken, or a natural language response to the user's query if it wasn't an action-oriented command."),
 });
 
-export const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, NoActionSchema]);
+const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, NoActionSchema]);
 export type OrganizeInventoryOutput = z.infer<typeof OrganizeInventoryOutputSchema>;
 
 // Wrapper function for external calls
