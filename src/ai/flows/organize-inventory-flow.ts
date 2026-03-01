@@ -33,12 +33,23 @@ const MoveActionSchema = z.object({
   reasoning: z.string().describe("A brief explanation of the action to be taken for the user."),
 });
 
+const DeleteActionSchema = z.object({
+    action: z.literal('delete'),
+    sourceModuleSlug: z.string().describe("The slug of the module where the asset to be deleted is located."),
+    assetIdentifier: z.object({
+        ams_asset_id: z.string().optional(),
+        asset_description: z.string().optional(),
+        end_user: z.string().optional(),
+    }).describe("The properties to uniquely identify the asset to be deleted. Use only one of the properties."),
+    reasoning: z.string().describe("A brief explanation of the deletion action for the user."),
+});
+
 const NoActionSchema = z.object({
     action: z.literal('none'),
     reasoning: z.string().describe("Explanation why no action was taken, or a natural language response to the user's query if it wasn't an action-oriented command."),
 });
 
-const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, NoActionSchema]);
+const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, DeleteActionSchema, NoActionSchema]);
 export type OrganizeInventoryOutput = z.infer<typeof OrganizeInventoryOutputSchema>;
 
 // Wrapper function for external calls
@@ -68,10 +79,14 @@ Analyze the user's prompt: "{{{prompt}}}"
   - The destination module might be mentioned by name. You MUST map this name to its correct slug from the provided list.
   - If successful, return a 'move' action object. The sourceModuleSlug is always the currentModuleSlug. The reasoning should be a confirmation message for the user.
 
-- If the user's prompt is not a 'move' command, or if it's ambiguous, or if the destination module doesn't exist, return a 'none' action object.
+- If the user wants to delete an asset (e.g., "delete", "remove", "permanently delete"), identify the asset.
+  - The asset can be identified by its "ams_asset_id", "asset_description", or "end_user". Prioritize 'ams_asset_id'. Populate only ONE identifier field.
+  - If successful, return a 'delete' action object. The sourceModuleSlug is always the currentModuleSlug. The reasoning should be a confirmation message for the user.
+
+- If the user's prompt is not a 'move' or 'delete' command, or if it's ambiguous, or if the destination module doesn't exist for a move command, return a 'none' action object.
   - In the 'reasoning' field for 'none' actions, provide a helpful, natural language response. For example, if a destination module is not found, list the available modules. If the request is a general question, answer it.
 
-Example:
+Example 1 (Move):
 User Prompt: "move asset with id ME-1234 to Plant Maintenance T02_11"
 Current Module Slug: "machinery_maintenance_t02_13"
 Output:
@@ -81,6 +96,17 @@ Output:
   "destinationModuleSlug": "plant_maintenance_t02_11",
   "assetIdentifier": { "ams_asset_id": "ME-1234" },
   "reasoning": "Understood. Moving asset ME-1234 from Machinery Maintenance T02_13 to Plant Maintenance T02_11."
+}
+
+Example 2 (Delete):
+User Prompt: "permanently remove the asset with description 'old server rack'"
+Current Module Slug: "cad_cam_designlab_t01_23"
+Output:
+{
+  "action": "delete",
+  "sourceModuleSlug": "cad_cam_designlab_t01_23",
+  "assetIdentifier": { "asset_description": "old server rack" },
+  "reasoning": "Understood. Deleting asset 'old server rack' from CAD/CAM DesignLab T01_23."
 }
 `
 });

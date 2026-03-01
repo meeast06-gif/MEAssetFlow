@@ -8,6 +8,7 @@ import {
   getDocs,
   doc,
   writeBatch,
+  deleteDoc,
 } from 'firebase/firestore';
 import type { InventoryAsset } from './definitions';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -85,6 +86,34 @@ export async function moveAsset(
     const permissionError = new FirestorePermissionError({
       path: `${sourceDocRef.path} or ${destCollectionRef.path}`,
       operation: 'write',
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    return { success: false, error: serverError.message || 'An unknown error occurred.' };
+  }
+}
+
+/**
+ * Permanently deletes an asset from a module's inventory in Firestore.
+ */
+export async function deleteAsset(
+  db: Firestore,
+  moduleSlug: string,
+  assetId: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!assetId) {
+    return { success: false, error: 'Asset is missing an ID.' };
+  }
+
+  const assetRef = doc(db, 'modules', moduleSlug, 'inventory_list', assetId);
+
+  try {
+    await deleteDoc(assetRef);
+    return { success: true };
+  } catch (serverError: any) {
+    console.error('Error deleting asset:', serverError);
+    const permissionError = new FirestorePermissionError({
+      path: assetRef.path,
+      operation: 'delete',
     });
     errorEmitter.emit('permission-error', permissionError);
     return { success: false, error: serverError.message || 'An unknown error occurred.' };

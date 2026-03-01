@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from '@/components/ui/separator';
 import { getAiOrganizerAction } from '@/lib/actions';
-import { findAsset, moveAsset } from '@/lib/inventory-actions';
+import { findAsset, moveAsset, deleteAsset } from '@/lib/inventory-actions';
 import { getModuleNameFromSlug } from '@/lib/utils';
 
 
@@ -68,6 +68,29 @@ function ModuleSidebar({ slug }: { slug: string }) {
                     }
                 }
 
+            } else if (result.action === 'delete') {
+                setResponse(`Understood. Searching for the asset to delete...`);
+
+                const assetsToDelete = await findAsset(firestore, result.sourceModuleSlug, result.assetIdentifier);
+
+                if (assetsToDelete.length === 0) {
+                    setResponse(`Could not find a matching asset to delete. Please be more specific with the asset ID, description, or end user.`);
+                } else if (assetsToDelete.length > 1) {
+                    setResponse(`Found multiple matching assets. Please provide a more specific identifier (like the 'ams_asset_id').`);
+                } else {
+                    const asset = assetsToDelete[0];
+                    const sourceModuleName = getModuleNameFromSlug(result.sourceModuleSlug);
+
+                    setResponse(`Found asset "${asset.asset_description || asset.ams_asset_id}". Deleting it from ${sourceModuleName}...`);
+
+                    const deleteResult = await deleteAsset(firestore, result.sourceModuleSlug, asset.id);
+
+                    if (deleteResult.success) {
+                        setResponse(`Successfully deleted asset "${asset.asset_description || asset.ams_asset_id}" from ${sourceModuleName}.`);
+                    } else {
+                        setResponse(`Failed to delete asset. Error: ${deleteResult.error}`);
+                    }
+                }
             } else { // action === 'none'
                 setResponse(result.reasoning);
             }
