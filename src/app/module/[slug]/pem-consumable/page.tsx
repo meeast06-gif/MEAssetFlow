@@ -22,30 +22,30 @@ import { format } from 'date-fns';
 
 const tableHeaders = [
     "SN",
-    "Order_Number",
-    "Item_Name",
+    "Order Number",
+    "Item Name",
     "Quantity",
     "Unit",
     "Weeks",
-    "Frequency_Per_Week",
-    "Total_Students",
-    "Date_Ordered",
-    "Date_Received",
-    "AI_Forecast",
+    "Frequency Per Week",
+    "Total Students",
+    "Date Ordered",
+    "Date Received",
+    "AI Forecast",
 ];
 
 const headerToFieldMap: Record<string, keyof PEMConsumable | null> = {
     "SN": null,
-    "Order_Number": "order_number",
-    "Item_Name": "item_name",
+    "Order Number": "order_number",
+    "Item Name": "item_name",
     "Quantity": "quantity",
     "Unit": "unit",
     "Weeks": "weeks",
-    "Frequency_Per_Week": "frequency_per_week",
-    "Total_Students": "total_students",
-    "Date_Ordered": "date_ordered",
-    "Date_Received": "date_received",
-    "AI_Forecast": "ai_forecast",
+    "Frequency Per Week": "frequency_per_week",
+    "Total Students": "total_students",
+    "Date Ordered": "date_ordered",
+    "Date Received": "date_received",
+    "AI Forecast": "ai_forecast",
 };
 
 export default function PemConsumablePage() {
