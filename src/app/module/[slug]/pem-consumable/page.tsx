@@ -5,6 +5,29 @@ import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { getModuleNameFromSlug } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+
+const tableHeaders = [
+    "SN",
+    "Order_Number",
+    "Item_Name",
+    "Quantity",
+    "Unit",
+    "Weeks",
+    "Frequency_Per_Week",
+    "Total_Students",
+    "Date_Ordered",
+    "Date_Received",
+    "AI_Forecast",
+];
 
 export default function PemConsumablePage() {
     const params = useParams();
@@ -22,14 +45,29 @@ export default function PemConsumablePage() {
                 <PageHeader moduleName={moduleName} />
                 <Card>
                     <CardHeader>
-                        <CardTitle>PEM Consumable</CardTitle>
+                        <CardTitle>PEM Consumable Inventory</CardTitle>
                         <CardDescription>
-                            This page is under construction.
+                            A list of all consumable items for this module.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex h-48 items-center justify-center text-muted-foreground">
-                            Future content will be displayed here.
+                       <div className="w-full overflow-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        {tableHeaders.map(header => (
+                                            <TableHead key={header} className="whitespace-nowrap">{header}</TableHead>
+                                        ))}
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
+                                            No consumable items have been added yet.
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
                         </div>
                     </CardContent>
                 </Card>
