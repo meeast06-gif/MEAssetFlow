@@ -107,10 +107,10 @@
       "description": "Represents a single consumable item for a module's inventory.",
       "type": "object",
       "properties": {
-        "orderNumber": {
+        "order_number": {
           "type": "string"
         },
-        "itemName": {
+        "item_name": {
           "type": "string"
         },
         "quantity": {
@@ -122,21 +122,21 @@
         "weeks": {
           "type": "number"
         },
-        "frequencyPerWeek": {
+        "frequency_per_week": {
           "type": "number"
         },
-        "totalStudents": {
+        "total_students": {
           "type": "number"
         },
-        "dateOrdered": {
+        "date_ordered": {
           "type": "string",
           "format": "date-time"
         },
-        "dateReceived": {
+        "date_received": {
           "type": "string",
           "format": "date-time"
         },
-        "aiForecast": {
+        "ai_forecast": {
           "type": "string"
         }
       }

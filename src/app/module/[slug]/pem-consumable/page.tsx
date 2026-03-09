@@ -36,16 +36,16 @@ const tableHeaders = [
 
 const headerToFieldMap: Record<string, keyof PEMConsumable | null> = {
     "SN": null,
-    "Order_Number": "orderNumber",
-    "Item_Name": "itemName",
+    "Order_Number": "order_number",
+    "Item_Name": "item_name",
     "Quantity": "quantity",
     "Unit": "unit",
     "Weeks": "weeks",
-    "Frequency_Per_Week": "frequencyPerWeek",
-    "Total_Students": "totalStudents",
-    "Date_Ordered": "dateOrdered",
-    "Date_Received": "dateReceived",
-    "AI_Forecast": "aiForecast",
+    "Frequency_Per_Week": "frequency_per_week",
+    "Total_Students": "total_students",
+    "Date_Ordered": "date_ordered",
+    "Date_Received": "date_received",
+    "AI_Forecast": "ai_forecast",
 };
 
 export default function PemConsumablePage() {
@@ -66,11 +66,11 @@ export default function PemConsumablePage() {
         }
         return rawConsumables.map((item) => {
             const newItem: { [key: string]: any } = { ...item };
-            if (item.dateOrdered && item.dateOrdered.toDate) {
-                newItem.dateOrdered = format(item.dateOrdered.toDate(), "P");
+            if (item.date_ordered && item.date_ordered.toDate) {
+                newItem.date_ordered = format(item.date_ordered.toDate(), "P");
             }
-            if (item.dateReceived && item.dateReceived.toDate) {
-                newItem.dateReceived = format(item.dateReceived.toDate(), "P");
+            if (item.date_received && item.date_received.toDate) {
+                newItem.date_received = format(item.date_received.toDate(), "P");
             }
             return newItem as PEMConsumable;
         });

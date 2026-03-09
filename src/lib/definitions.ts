@@ -48,14 +48,14 @@ export type InventoryAsset = {
 
 export type PEMConsumable = {
   id: string;
-  orderNumber?: string;
-  itemName?: string;
+  order_number?: string;
+  item_name?: string;
   quantity?: number;
   unit?: string;
   weeks?: number;
-  frequencyPerWeek?: number;
-  totalStudents?: number;
-  dateOrdered?: string;
-  dateReceived?: string;
-  aiForecast?: string;
+  frequency_per_week?: number;
+  total_students?: number;
+  date_ordered?: string;
+  date_received?: string;
+  ai_forecast?: string;
 };
