@@ -84,7 +84,7 @@ export default function PemConsumablePage() {
                                 <TableHeader>
                                     <TableRow>
                                         {tableHeaders.map(header => (
-                                            <TableHead key={header} className="whitespace-nowrap">{header}</TableHead>
+                                            <TableHead key={header} className="whitespace-nowrap text-center">{header}</TableHead>
                                         ))}
                                     </TableRow>
                                 </TableHeader>
@@ -93,7 +93,9 @@ export default function PemConsumablePage() {
                                         [...Array(3)].map((_, i) => (
                                             <TableRow key={i}>
                                                 {tableHeaders.map(header => (
-                                                    <TableCell key={header}><Skeleton className="h-5 w-full" /></TableCell>
+                                                    <TableCell key={header} className="text-center">
+                                                        <Skeleton className="h-5 w-3/4 mx-auto" />
+                                                    </TableCell>
                                                 ))}
                                             </TableRow>
                                         ))
@@ -103,7 +105,7 @@ export default function PemConsumablePage() {
                                                 {tableHeaders.map(header => {
                                                     const fieldKey = headerToFieldMap[header];
                                                     const value = fieldKey ? item[fieldKey] : '';
-                                                    return <TableCell key={header}>{value ?? ''}</TableCell>;
+                                                    return <TableCell key={header} className="text-center">{value ?? ''}</TableCell>;
                                                 })}
                                             </TableRow>
                                         ))
