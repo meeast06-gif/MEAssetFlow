@@ -45,3 +45,17 @@ export type InventoryAsset = {
   sensor_mac?: string;
   sensor_pin?: string;
 };
+
+export type PEMConsumable = {
+  id: string;
+  orderNumber?: string;
+  itemName?: string;
+  quantity?: number;
+  unit?: string;
+  weeks?: number;
+  frequencyPerWeek?: number;
+  totalStudents?: number;
+  dateOrdered?: string;
+  dateReceived?: string;
+  aiForecast?: string;
+};

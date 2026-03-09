@@ -101,6 +101,45 @@
         "sensor_mac": { "type": "string" },
         "sensor_pin": { "type": "string" }
       }
+    },
+    "PEMConsumable": {
+      "title": "PEM Consumable",
+      "description": "Represents a single consumable item for a module's inventory.",
+      "type": "object",
+      "properties": {
+        "orderNumber": {
+          "type": "string"
+        },
+        "itemName": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "weeks": {
+          "type": "number"
+        },
+        "frequencyPerWeek": {
+          "type": "number"
+        },
+        "totalStudents": {
+          "type": "number"
+        },
+        "dateOrdered": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dateReceived": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "aiForecast": {
+          "type": "string"
+        }
+      }
     }
   },
   "auth": {
@@ -126,6 +165,12 @@
         "$ref": "#/entities/InventoryAsset"
       },
       "description": "Stores the collection of inventory assets for a specific module."
+    },
+    "/modules/{moduleId}/pem_consumable/{pemConsumableId}": {
+      "schema": {
+        "$ref": "#/entities/PEMConsumable"
+      },
+      "description": "Stores the collection of PEM consumable items for a specific module."
     }
   }
 }

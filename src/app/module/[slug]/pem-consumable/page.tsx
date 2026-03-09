@@ -13,6 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { collection } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import type { PEMConsumable } from '@/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
 
 
 const tableHeaders = [
@@ -29,9 +34,48 @@ const tableHeaders = [
     "AI_Forecast",
 ];
 
+const headerToFieldMap: Record<string, keyof PEMConsumable | null> = {
+    "SN": null,
+    "Order_Number": "orderNumber",
+    "Item_Name": "itemName",
+    "Quantity": "quantity",
+    "Unit": "unit",
+    "Weeks": "weeks",
+    "Frequency_Per_Week": "frequencyPerWeek",
+    "Total_Students": "totalStudents",
+    "Date_Ordered": "dateOrdered",
+    "Date_Received": "dateReceived",
+    "AI_Forecast": "aiForecast",
+};
+
 export default function PemConsumablePage() {
     const params = useParams();
     const slug = params.slug as string;
+    const firestore = useFirestore();
+
+    const pemConsumableQuery = useMemoFirebase(() => {
+        if (!firestore || !slug) return null;
+        return collection(firestore, `modules/${slug}/pem_consumable`);
+    }, [firestore, slug]);
+
+    const { data: rawConsumables, isLoading } = useCollection<any>(pemConsumableQuery);
+
+    const pemConsumables: PEMConsumable[] | null = useMemo(() => {
+        if (!rawConsumables) {
+            return null;
+        }
+        return rawConsumables.map((item) => {
+            const newItem: { [key: string]: any } = { ...item };
+            if (item.dateOrdered && item.dateOrdered.toDate) {
+                newItem.dateOrdered = format(item.dateOrdered.toDate(), "P");
+            }
+            if (item.dateReceived && item.dateReceived.toDate) {
+                newItem.dateReceived = format(item.dateReceived.toDate(), "P");
+            }
+            return newItem as PEMConsumable;
+        });
+    }, [rawConsumables]);
+
 
     const moduleName = useMemo(() => {
         if (!slug) return "PEM Consumable";
@@ -61,11 +105,32 @@ export default function PemConsumablePage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    <TableRow>
-                                        <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
-                                            No consumable items have been added yet.
-                                        </TableCell>
-                                    </TableRow>
+                                    {isLoading ? (
+                                        [...Array(3)].map((_, i) => (
+                                            <TableRow key={i}>
+                                                {tableHeaders.map(header => (
+                                                    <TableCell key={header}><Skeleton className="h-5 w-full" /></TableCell>
+                                                ))}
+                                            </TableRow>
+                                        ))
+                                    ) : pemConsumables && pemConsumables.length > 0 ? (
+                                        pemConsumables.map((item, index) => (
+                                            <TableRow key={item.id}>
+                                                <TableCell>{index + 1}</TableCell>
+                                                {tableHeaders.slice(1).map(header => {
+                                                    const fieldKey = headerToFieldMap[header];
+                                                    const value = fieldKey ? item[fieldKey] : '';
+                                                    return <TableCell key={header}>{value ?? ''}</TableCell>;
+                                                })}
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
+                                                No consumable items have been added yet.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>
