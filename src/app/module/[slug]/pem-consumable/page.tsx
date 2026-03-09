@@ -33,8 +33,8 @@ const tableHeaders = [
     "AI_Forecast",
 ];
 
-const headerToFieldMap: Record<string, keyof PEMConsumable | null> = {
-    "SN": null,
+const headerToFieldMap: Record<string, keyof PEMConsumable> = {
+    "SN": "sn",
     "Order_Number": "order_number",
     "Item_Name": "item_name",
     "Quantity": "quantity",
@@ -53,9 +53,11 @@ export default function PemConsumablePage() {
     const firestore = useFirestore();
 
     const pemConsumableQuery = useMemoFirebase(() => {
-        if (!firestore || !slug) return null;
-        return collection(firestore, `modules/${slug}/pem_consumable`);
-    }, [firestore, slug]);
+        if (!firestore) return null;
+        // This path is derived from the user's screenshot breadcrumb:
+        // modules (collection) -> pem_consumable (document) -> inventory_list (collection)
+        return collection(firestore, `modules/pem_consumable/inventory_list`);
+    }, [firestore]);
 
     const { data: pemConsumables, isLoading } = useCollection<PEMConsumable>(pemConsumableQuery);
 
@@ -96,10 +98,9 @@ export default function PemConsumablePage() {
                                             </TableRow>
                                         ))
                                     ) : pemConsumables && pemConsumables.length > 0 ? (
-                                        pemConsumables.map((item, index) => (
+                                        pemConsumables.map((item) => (
                                             <TableRow key={item.id}>
-                                                <TableCell>{index + 1}</TableCell>
-                                                {tableHeaders.slice(1).map(header => {
+                                                {tableHeaders.map(header => {
                                                     const fieldKey = headerToFieldMap[header];
                                                     const value = fieldKey ? item[fieldKey] : '';
                                                     return <TableCell key={header}>{value ?? ''}</TableCell>;

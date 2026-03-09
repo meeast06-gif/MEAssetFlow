@@ -107,6 +107,9 @@
       "description": "Represents a single consumable item for a module's inventory.",
       "type": "object",
       "properties": {
+        "sn": {
+          "type": "string"
+        },
         "order_number": {
           "type": "string"
         },
@@ -164,11 +167,11 @@
       },
       "description": "Stores the collection of inventory assets for a specific module."
     },
-    "/modules/{moduleId}/pem_consumable/{pemConsumableId}": {
+    "/modules/pem_consumable/inventory_list/{pemConsumableId}": {
       "schema": {
         "$ref": "#/entities/PEMConsumable"
       },
-      "description": "Stores the collection of PEM consumable items for a specific module."
+      "description": "Stores the collection of PEM consumable items."
     }
   }
 }
