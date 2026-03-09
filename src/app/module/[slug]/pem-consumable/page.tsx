@@ -17,7 +17,6 @@ import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { PEMConsumable } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format } from 'date-fns';
 
 
 const tableHeaders = [
@@ -58,24 +57,7 @@ export default function PemConsumablePage() {
         return collection(firestore, `modules/${slug}/pem_consumable`);
     }, [firestore, slug]);
 
-    const { data: rawConsumables, isLoading } = useCollection<any>(pemConsumableQuery);
-
-    const pemConsumables: PEMConsumable[] | null = useMemo(() => {
-        if (!rawConsumables) {
-            return null;
-        }
-        return rawConsumables.map((item) => {
-            const newItem: { [key: string]: any } = { ...item };
-            if (item.date_ordered && item.date_ordered.toDate) {
-                newItem.date_ordered = format(item.date_ordered.toDate(), "P");
-            }
-            if (item.date_received && item.date_received.toDate) {
-                newItem.date_received = format(item.date_received.toDate(), "P");
-            }
-            return newItem as PEMConsumable;
-        });
-    }, [rawConsumables]);
-
+    const { data: pemConsumables, isLoading } = useCollection<PEMConsumable>(pemConsumableQuery);
 
     const moduleName = useMemo(() => {
         if (!slug) return "PEM Consumable";

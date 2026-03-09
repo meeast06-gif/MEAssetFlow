@@ -114,27 +114,25 @@
           "type": "string"
         },
         "quantity": {
-          "type": "number"
+          "type": "string"
         },
         "unit": {
           "type": "string"
         },
         "weeks": {
-          "type": "number"
+          "type": "string"
         },
         "frequency_per_week": {
-          "type": "number"
+          "type": "string"
         },
         "total_students": {
-          "type": "number"
+          "type": "string"
         },
         "date_ordered": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "date_received": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "ai_forecast": {
           "type": "string"
