@@ -16,7 +16,7 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid, Sparkles, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid, Sparkles, Loader2, ShoppingBasket } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from "@/components/ui/textarea";
@@ -115,6 +115,7 @@ function ModuleSidebar({ slug }: { slug: string }) {
         { href: `/module/${slug}/inventory`, label: 'Inventory', icon: Archive },
         { href: `/module/${slug}/inspection`, label: 'Inspection', icon: ClipboardCheck },
         { href: `/module/${slug}/servicing`, label: 'Servicing', icon: Wrench },
+        { href: `/module/${slug}/pem-consumable`, label: 'PEM Consumable', icon: ShoppingBasket },
     ];
 
     return (
