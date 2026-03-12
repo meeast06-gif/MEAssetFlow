@@ -63,7 +63,7 @@ const organizeInventoryPrompt = ai.definePrompt({
   name: 'organizeInventoryPrompt',
   input: {schema: OrganizeInventoryInputSchema},
   output: {schema: OrganizeInventoryOutputSchema},
-  prompt: `You are an AI assistant for an asset management system. Your task is to interpret a user's command and translate it into a structured action.
+  prompt: `You are an AI assistant for an asset management system. Your task is to interpret a user's command and translate it into a structured action or perform a calculation.
 
 The user is currently in the module with slug: '{{{currentModuleSlug}}}'.
 
@@ -83,7 +83,23 @@ Analyze the user's prompt: "{{{prompt}}}"
   - The asset can be identified by its "ams_asset_id", "asset_description", or "end_user". Prioritize 'ams_asset_id'. Populate only ONE identifier field.
   - If successful, return a 'delete' action object. The sourceModuleSlug is always the currentModuleSlug. The reasoning should be a confirmation message for the user.
 
-- If the user's prompt is not a 'move' or 'delete' command, or if it's ambiguous, or if the destination module doesn't exist for a move command, return a 'none' action object.
+- If the user's prompt is a calculation request for consumable usage, perform the calculation.
+  - The formulas are:
+    - Usage per week (W) = S * C * U
+    - Full Weeks (FW) = floor(T / W)
+    - Remainder (R) = T - (FW * W)
+  - The variables are:
+    - T: Total number of consumable ordered
+    - S: Number of students
+    - C: Number of classes per week
+    - U: Item usage per student per class
+  - Look for variables and their values in the prompt (e.g., "T=500, S=20, C=2, U=1"). Also, identify any units mentioned (e.g., mm, pairs, bottles).
+  - If all variables (T, S, C, U) are present, calculate W, FW, and R.
+  - Formulate a response like: "The consumables will last for [FW] full weeks, with a remainder of [R] [units]."
+  - If any variables are missing, ask the user for the missing information (e.g., "I need the values for S, C, and U to perform the calculation.").
+  - Return a 'none' action object with the calculation result or question in the 'reasoning' field.
+
+- If the user's prompt is not a 'move', 'delete', or calculation command, or if it's ambiguous, or if the destination module doesn't exist for a move command, return a 'none' action object.
   - In the 'reasoning' field for 'none' actions, provide a helpful, natural language response. For example, if a destination module is not found, list the available modules. If the request is a general question, answer it.
 
 Example 1 (Move):
@@ -107,6 +123,14 @@ Output:
   "sourceModuleSlug": "cad_cam_designlab_t01_23",
   "assetIdentifier": { "asset_description": "old server rack" },
   "reasoning": "Understood. Deleting asset 'old server rack' from CAD/CAM DesignLab T01_23."
+}
+
+Example 3 (Calculation):
+User Prompt: "T=500 bottles, S=25, C=2, U=2"
+Output:
+{
+  "action": "none",
+  "reasoning": "With a total of 500 bottles, and a weekly usage of 100 bottles (25 students * 2 classes/week * 2 units/student), the consumables will last for 5 full weeks with a remainder of 0 bottles."
 }
 `
 });
