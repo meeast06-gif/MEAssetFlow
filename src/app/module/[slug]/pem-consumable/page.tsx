@@ -26,7 +26,7 @@ const tableHeaders = [
     "Quantity",
     "Date_Ordered",
     "Date_Received",
-    "AI_Forecast",
+    "Next_Order",
 ];
 
 const headerToFieldMap: Record<string, keyof PEMConsumable> = {
@@ -36,7 +36,7 @@ const headerToFieldMap: Record<string, keyof PEMConsumable> = {
     "Quantity": "quantity",
     "Date_Ordered": "date_ordered",
     "Date_Received": "date_received",
-    "AI_Forecast": "ai_forecast",
+    "Next_Order": "next_order",
 };
 
 export default function PemConsumablePage() {

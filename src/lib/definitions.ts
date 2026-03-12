@@ -52,11 +52,7 @@ export type PEMConsumable = {
   order_number?: string;
   item_name?: string;
   quantity?: string;
-  unit?: string;
-  weeks?: string;
-  frequency_per_week?: string;
-  total_students?: string;
   date_ordered?: string;
   date_received?: string;
-  ai_forecast?: string;
+  next_order?: string;
 };
