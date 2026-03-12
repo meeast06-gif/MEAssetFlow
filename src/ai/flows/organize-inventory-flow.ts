@@ -63,7 +63,7 @@ const organizeInventoryPrompt = ai.definePrompt({
   name: 'organizeInventoryPrompt',
   input: {schema: OrganizeInventoryInputSchema},
   output: {schema: OrganizeInventoryOutputSchema},
-  prompt: `You are an AI assistant for an asset management system. Your task is to interpret a user's command and translate it into a structured action or perform a calculation.
+  prompt: `You are an AI assistant for an asset management system. Your task is to interpret a user's command and translate it into a structured action or perform a calculation. You have knowledge of the 2026 calendar.
 
 The user is currently in the module with slug: '{{{currentModuleSlug}}}'.
 
@@ -94,8 +94,13 @@ Analyze the user's prompt: "{{{prompt}}}"
     - C: Number of classes per week
     - U: Item usage per student per class
   - Look for variables and their values in the prompt (e.g., "T=500, S=20, C=2, U=1"). Also, identify any units mentioned (e.g., mm, pairs, bottles).
-  - If all variables (T, S, C, U) are present, calculate W, FW, and R.
-  - Formulate a response like: "The consumables will last for [FW] full weeks, with a remainder of [R] [units]."
+
+  - If the prompt includes an order date (e.g., "order date is 2026-01-05"), you MUST also calculate the next order date.
+    - The run-out date is calculated by adding FW (full weeks) to the given orderDate.
+    - The 'next order date' is exactly 1 week before the run-out date.
+    - The response must include the full weeks, the remainder, and the calculated next order date.
+
+  - If all variables (T, S, C, U) are present but no order date, calculate W, FW, and R, and formulate a response like: "The consumables will last for [FW] full weeks, with a remainder of [R] [units]."
   - If any variables are missing, ask the user for the missing information (e.g., "I need the values for S, C, and U to perform the calculation.").
   - Return a 'none' action object with the calculation result or question in the 'reasoning' field.
 
@@ -131,6 +136,14 @@ Output:
 {
   "action": "none",
   "reasoning": "With a total of 500 bottles, and a weekly usage of 100 bottles (25 students * 2 classes/week * 2 units/student), the consumables will last for 5 full weeks with a remainder of 0 bottles."
+}
+
+Example 4 (Calculation with Date):
+User Prompt: "T=400 units, S=20, C=2, U=1, order date was 2026-01-05"
+Output:
+{
+  "action": "none",
+  "reasoning": "With a weekly usage of 40 units, the 400 units will last for 10 full weeks with a remainder of 0 units. Based on an order date of 2026-01-05, the items will run out on 2026-03-16. You should place your next order by 2026-03-09 to account for a one week lead time."
 }
 `
 });
