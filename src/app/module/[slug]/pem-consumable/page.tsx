@@ -17,7 +17,7 @@ import { collection } from 'firebase/firestore';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { PEMConsumable } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
-
+import { formatInTimeZone } from 'date-fns-tz';
 
 const tableHeaders = [
     "SN",
@@ -39,6 +39,8 @@ const headerToFieldMap: Record<string, keyof PEMConsumable> = {
     "Next_Order": "next_order",
 };
 
+const dateColumns = ["Date_Ordered", "Date_Received", "Next_Order"];
+
 export default function PemConsumablePage() {
     const params = useParams();
     const slug = params.slug as string;
@@ -46,8 +48,6 @@ export default function PemConsumablePage() {
 
     const pemConsumableQuery = useMemoFirebase(() => {
         if (!firestore) return null;
-        // This path is derived from the user's screenshot breadcrumb:
-        // modules (collection) -> pem_consumable (document) -> inventory_list (collection)
         return collection(firestore, `modules/pem_consumable/inventory_list`);
     }, [firestore]);
 
@@ -58,6 +58,22 @@ export default function PemConsumablePage() {
         const baseName = getModuleNameFromSlug(slug);
         return `${baseName} - PEM Consumable`;
     }, [slug]);
+
+    const formatDate = (dateString: string | undefined) => {
+        if (!dateString) return '';
+        try {
+            // The AI generates YYYY-MM-DD. new Date() parses this as midnight UTC.
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+                return dateString; // Return original string if not a valid date
+            }
+            // Display the date in Singapore time zone.
+            return formatInTimeZone(date, 'Asia/Singapore', 'd MMM yyyy');
+        } catch (error) {
+            console.error("Error formatting date:", dateString, error);
+            return dateString; // Return original string on error
+        }
+    };
 
     return (
         <div className="flex min-h-screen w-full flex-col">
@@ -96,7 +112,10 @@ export default function PemConsumablePage() {
                                             <TableRow key={item.id}>
                                                 {tableHeaders.map(header => {
                                                     const fieldKey = headerToFieldMap[header];
-                                                    const value = fieldKey ? item[fieldKey] : '';
+                                                    let value = fieldKey ? item[fieldKey as keyof PEMConsumable] : '';
+                                                    if (dateColumns.includes(header) && typeof value === 'string' && value) {
+                                                        value = formatDate(value);
+                                                    }
                                                     return <TableCell key={header} className="text-center">{value ?? ''}</TableCell>;
                                                 })}
                                             </TableRow>
