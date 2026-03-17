@@ -110,13 +110,20 @@ function ModuleSidebar({ slug }: { slug: string }) {
       }
     };
 
-    const menuItems = [
-        { href: `/module/${slug}`, label: 'Dashboard', icon: LayoutDashboard },
-        { href: `/module/${slug}/inventory`, label: 'Inventory', icon: Archive },
-        { href: `/module/${slug}/inspection`, label: 'Inspection', icon: ClipboardCheck },
-        { href: `/module/${slug}/servicing`, label: 'Servicing', icon: Wrench },
-        { href: `/module/${slug}/pem-consumable`, label: 'PEM Consumable', icon: ShoppingBasket },
-    ];
+    const menuItems = React.useMemo(() => {
+        const items = [
+            { href: `/module/${slug}`, label: 'Dashboard', icon: LayoutDashboard },
+            { href: `/module/${slug}/inventory`, label: 'Inventory', icon: Archive },
+            { href: `/module/${slug}/inspection`, label: 'Inspection', icon: ClipboardCheck },
+            { href: `/module/${slug}/servicing`, label: 'Servicing', icon: Wrench },
+        ];
+
+        if (slug === 'plant_maintenance_t02_11') {
+            items.push({ href: `/module/${slug}/pem-consumable`, label: 'PEM Consumable', icon: ShoppingBasket });
+        }
+
+        return items;
+    }, [slug]);
 
     return (
         <Sidebar collapsible="icon">
