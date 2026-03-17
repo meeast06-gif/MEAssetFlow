@@ -15,7 +15,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 type AssetIdentifier = {
-  ams_asset_id?: string;
+  ams_asset_id?: string[];
   asset_description?: string;
   end_user?: string;
 };
@@ -31,9 +31,11 @@ export async function findAsset(
   const collectionRef = collection(db, `modules/${moduleSlug}/inventory_list`);
   let q;
 
-  // Build the query based on the provided identifier. Prioritize ams_asset_id.
-  if (identifier.ams_asset_id) {
-    q = query(collectionRef, where('ams_asset_id', '==', identifier.ams_asset_id));
+  // Build the query based on the provided identifier.
+  if (identifier.ams_asset_id && identifier.ams_asset_id.length > 0) {
+    // Firestore 'in' queries are limited to 30 elements.
+    const ids = identifier.ams_asset_id.slice(0, 30);
+    q = query(collectionRef, where('ams_asset_id', 'in', ids));
   } else if (identifier.asset_description) {
     q = query(collectionRef, where('asset_description', '==', identifier.asset_description));
   } else if (identifier.end_user) {
@@ -64,27 +66,35 @@ export async function moveAsset(
   db: Firestore,
   sourceSlug: string,
   destSlug: string,
-  asset: InventoryAsset
+  assets: InventoryAsset[]
 ): Promise<{ success: boolean; error?: string }> {
-  const { id, ...assetData } = asset;
-  if (!id) {
-    return { success: false, error: 'Asset is missing an ID.' };
+  if (!assets || assets.length === 0) {
+    return { success: false, error: 'No assets provided to move.' };
   }
 
-  const sourceDocRef = doc(db, 'modules', sourceSlug, 'inventory_list', id);
-  const destCollectionRef = collection(db, 'modules', destSlug, 'inventory_list');
-  const newDestDocRef = doc(destCollectionRef);
+  const batch = writeBatch(db);
+  const destCollectionRef = collection(db, `modules/${destSlug}/inventory_list`);
+
+  for (const asset of assets) {
+      const { id, ...assetData } = asset;
+      if (!id) {
+          return { success: false, error: 'One of the assets is missing an ID.' };
+      }
+      const sourceDocRef = doc(db, 'modules', sourceSlug, 'inventory_list', id);
+      const newDestDocRef = doc(destCollectionRef); // Let Firestore generate a new ID in the destination
+
+      batch.delete(sourceDocRef);
+      batch.set(newDestDocRef, assetData);
+  }
+
 
   try {
-    const batch = writeBatch(db);
-    batch.delete(sourceDocRef);
-    batch.set(newDestDocRef, assetData);
     await batch.commit();
     return { success: true };
   } catch (serverError: any) {
     console.error('Error moving asset:', serverError);
     const permissionError = new FirestorePermissionError({
-      path: `${sourceDocRef.path} or ${destCollectionRef.path}`,
+      path: `from modules/${sourceSlug}/inventory_list to modules/${destSlug}/inventory_list`,
       operation: 'write',
     });
     errorEmitter.emit('permission-error', permissionError);

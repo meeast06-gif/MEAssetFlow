@@ -26,10 +26,10 @@ const MoveActionSchema = z.object({
   sourceModuleSlug: z.string().describe("The slug of the module to move the asset from."),
   destinationModuleSlug: z.string().describe("The slug of the module to move the asset to."),
   assetIdentifier: z.object({
-    ams_asset_id: z.string().optional(),
-    asset_description: z.string().optional(),
-    end_user: z.string().optional(),
-  }).describe("The properties to uniquely identify the asset to be moved. Use only one of the properties."),
+    ams_asset_id: z.array(z.string()).optional().describe("An array of 'ams_asset_id's for the asset(s) to be moved."),
+    asset_description: z.string().optional().describe("A single 'asset_description' to identify one asset."),
+    end_user: z.string().optional().describe("A single 'end_user' to identify one asset."),
+  }).describe("The properties to uniquely identify the asset(s) to be moved. Use 'ams_asset_id' for moving one or more assets. 'asset_description' and 'end_user' only support moving a single asset."),
   reasoning: z.string().describe("A brief explanation of the action to be taken for the user."),
 });
 
@@ -74,8 +74,10 @@ Here are the available modules they can move assets to:
 
 Analyze the user's prompt: "{{{prompt}}}"
 
-- If the user wants to move an asset, identify the asset and the destination module.
-  - The asset can be identified by its "ams_asset_id", "asset_description", or "end_user". Use the most specific identifier you can find in the prompt. Prioritize 'ams_asset_id' if mentioned. Populate only ONE identifier field to ensure a specific search.
+- If the user wants to move an asset or assets, identify the asset(s) and the destination module.
+  - The asset can be identified by its "ams_asset_id", "asset_description", or "end_user".
+  - If the user provides one or more 'ams_asset_id's (e.g., "ME-1234" or "EF1, EF2"), parse them into an array for the 'ams_asset_id' field. This allows moving multiple assets at once.
+  - 'asset_description' and 'end_user' only support identifying a single asset.
   - The destination module might be mentioned by name. You MUST map this name to its correct slug from the provided list.
   - If successful, return a 'move' action object. The sourceModuleSlug is always the currentModuleSlug. The reasoning should be a confirmation message for the user.
 
@@ -107,7 +109,19 @@ Analyze the user's prompt: "{{{prompt}}}"
 - If the user's prompt is not a 'move', 'delete', or calculation command, or if it's ambiguous, or if the destination module doesn't exist for a move command, return a 'none' action object.
   - In the 'reasoning' field for 'none' actions, provide a helpful, natural language response. For example, if a destination module is not found, list the available modules. If the request is a general question, answer it.
 
-Example 1 (Move):
+Example 1 (Move Multiple):
+User Prompt: "move assets EF1, EF2 to Plant Maintenance T02_11"
+Current Module Slug: "machinery_maintenance_t02_13"
+Output:
+{
+  "action": "move",
+  "sourceModuleSlug": "machinery_maintenance_t02_13",
+  "destinationModuleSlug": "plant_maintenance_t02_11",
+  "assetIdentifier": { "ams_asset_id": ["EF1", "EF2"] },
+  "reasoning": "Understood. Moving assets EF1, EF2 from Machinery Maintenance T02_13 to Plant Maintenance T02_11."
+}
+
+Example 2 (Move Single):
 User Prompt: "move asset with id ME-1234 to Plant Maintenance T02_11"
 Current Module Slug: "machinery_maintenance_t02_13"
 Output:
@@ -115,11 +129,11 @@ Output:
   "action": "move",
   "sourceModuleSlug": "machinery_maintenance_t02_13",
   "destinationModuleSlug": "plant_maintenance_t02_11",
-  "assetIdentifier": { "ams_asset_id": "ME-1234" },
+  "assetIdentifier": { "ams_asset_id": ["ME-1234"] },
   "reasoning": "Understood. Moving asset ME-1234 from Machinery Maintenance T02_13 to Plant Maintenance T02_11."
 }
 
-Example 2 (Delete):
+Example 3 (Delete):
 User Prompt: "permanently remove the asset with description 'old server rack'"
 Current Module Slug: "cad_cam_designlab_t01_23"
 Output:
@@ -130,7 +144,7 @@ Output:
   "reasoning": "Understood. Deleting asset 'old server rack' from CAD/CAM DesignLab T01_23."
 }
 
-Example 3 (Calculation):
+Example 4 (Calculation):
 User Prompt: "T=500 bottles, S=25, C=2, U=2"
 Output:
 {
@@ -138,7 +152,7 @@ Output:
   "reasoning": "With a total of 500 bottles, and a weekly usage of 100 bottles (25 students * 2 classes/week * 2 units/student), the consumables will last for 5 full weeks with a remainder of 0 bottles."
 }
 
-Example 4 (Calculation with Date):
+Example 5 (Calculation with Date):
 User Prompt: "T=400 units, S=20, C=2, U=1, order date was 2026-01-05"
 Output:
 {

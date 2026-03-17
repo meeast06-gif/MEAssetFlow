@@ -44,27 +44,25 @@ function ModuleSidebar({ slug }: { slug: string }) {
             const result = await getAiOrganizerAction(prompt, slug);
 
             if (result.action === 'move') {
-                setResponse(`Understood. Searching for the asset to move...`);
+                setResponse(`Understood. Searching for the asset(s) to move...`);
                 
                 const assetsToMove = await findAsset(firestore, result.sourceModuleSlug, result.assetIdentifier);
 
                 if (assetsToMove.length === 0) {
-                    setResponse(`Could not find a matching asset to move. Please be more specific with the asset ID, description, or end user.`);
-                } else if (assetsToMove.length > 1) {
-                    setResponse(`Found multiple matching assets. Please provide a more specific identifier (like the 'ams_asset_id').`);
+                    setResponse(`Could not find any matching assets to move. Please check the identifiers provided.`);
                 } else {
-                    const asset = assetsToMove[0];
                     const sourceModuleName = getModuleNameFromSlug(result.sourceModuleSlug);
                     const destModuleName = getModuleNameFromSlug(result.destinationModuleSlug);
+                    const assetIds = assetsToMove.map(a => a.ams_asset_id || a.id).join(', ');
 
-                    setResponse(`Found asset "${asset.asset_description || asset.ams_asset_id}". Moving it from ${sourceModuleName} to ${destModuleName}...`);
+                    setResponse(`Found ${assetsToMove.length} asset(s): [${assetIds}]. Moving from ${sourceModuleName} to ${destModuleName}...`);
                     
-                    const moveResult = await moveAsset(firestore, result.sourceModuleSlug, result.destinationModuleSlug, asset);
+                    const moveResult = await moveAsset(firestore, result.sourceModuleSlug, result.destinationModuleSlug, assetsToMove);
 
                     if (moveResult.success) {
-                        setResponse(`Successfully moved asset "${asset.asset_description || asset.ams_asset_id}" to ${destModuleName}.`);
+                        setResponse(`Successfully moved ${assetsToMove.length} asset(s) to ${destModuleName}.`);
                     } else {
-                        setResponse(`Failed to move asset. Error: ${moveResult.error}`);
+                        setResponse(`Failed to move asset(s). Error: ${moveResult.error}`);
                     }
                 }
 
