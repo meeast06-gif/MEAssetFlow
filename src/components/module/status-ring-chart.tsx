@@ -64,11 +64,11 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
               <PieChart>
                 <Tooltip content={<CustomTooltip />} />
                 <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  layout="horizontal"
+                  verticalAlign="middle"
+                  align="right"
+                  layout="vertical"
                   iconType="circle"
-                  wrapperStyle={{ paddingTop: '20px' }}
+                  wrapperStyle={{ paddingLeft: '20px' }}
                   payload={chartData.map(item => ({
                     value: `${item.name} (${item.value})`,
                     type: 'circle',
@@ -80,7 +80,7 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
                   data={chartData}
                   dataKey="value"
                   nameKey="name"
-                  cx="50%"
+                  cx="40%"
                   cy="50%"
                   innerRadius={80}
                   outerRadius={110}
