@@ -94,7 +94,6 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute left-[40%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="text-sm text-muted-foreground">Total Assets</div>
               <div className="text-3xl font-bold">{data.total}</div>
             </div>
           </div>
