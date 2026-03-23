@@ -60,15 +60,15 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
       <CardContent>
         {data.total > 0 && totalStatusValues > 0 ? (
           <div className="relative h-[300px]">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Tooltip content={<CustomTooltip />} />
                 <Legend
-                  verticalAlign="middle"
-                  align="right"
-                  layout="vertical"
+                  verticalAlign="bottom"
+                  align="center"
+                  layout="horizontal"
                   iconType="circle"
-                  wrapperStyle={{ paddingLeft: '20px' }}
+                  wrapperStyle={{ paddingTop: '20px' }}
                   payload={chartData.map(item => ({
                     value: `${item.name} (${item.value})`,
                     type: 'circle',
@@ -80,7 +80,7 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
                   data={chartData}
                   dataKey="value"
                   nameKey="name"
-                  cx="40%"
+                  cx="50%"
                   cy="50%"
                   innerRadius={80}
                   outerRadius={110}
