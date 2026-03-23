@@ -14,8 +14,8 @@ interface StatusRingChartProps {
   };
 }
 
+// Remove 'Total Asset' from the chart's data configuration
 const chartConfig = [
-  { name: 'Total Asset', key: 'total', color: '#007FFF' }, // Electric Blue
   { name: 'Assign', key: 'assign', color: '#50C878' }, // Emerald Green
   { name: 'Decom', key: 'decom', color: '#708090' }, // Slate Grey
   { name: 'Dispose', key: 'dispose', color: '#E0115F' }, // Ruby Red
@@ -49,6 +49,8 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
     color: item.color,
   })).filter(item => item.value > 0);
 
+  const totalStatusValues = chartData.reduce((acc, item) => acc + item.value, 0);
+
   return (
     <Card className="md:col-span-2 lg:col-span-3 xl:col-span-4">
       <CardHeader>
@@ -56,34 +58,40 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
         <CardDescription>A visual breakdown of asset statuses.</CardDescription>
       </CardHeader>
       <CardContent>
-        {chartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                verticalAlign="middle"
-                align="right"
-                layout="vertical"
-                iconType="circle"
-                wrapperStyle={{ paddingLeft: '20px' }}
-              />
-              <Pie
-                data={chartData}
-                dataKey="value"
-                nameKey="name"
-                cx="40%"
-                cy="50%"
-                innerRadius={80}
-                outerRadius={110}
-                paddingAngle={2}
-                strokeWidth={0}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
+        {totalStatusValues > 0 ? (
+          <div className="relative h-[300px]">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend
+                  verticalAlign="middle"
+                  align="right"
+                  layout="vertical"
+                  iconType="circle"
+                  wrapperStyle={{ paddingLeft: '20px' }}
+                />
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="40%"
+                  cy="50%"
+                  innerRadius={80}
+                  outerRadius={110}
+                  paddingAngle={2}
+                  strokeWidth={0}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute left-[40%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+              <div className="text-sm text-muted-foreground">Total Assets</div>
+              <div className="text-3xl font-bold">{data.total}</div>
+            </div>
+          </div>
         ) : (
           <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
             No asset data to display in chart.
