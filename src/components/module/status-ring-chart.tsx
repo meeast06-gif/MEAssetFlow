@@ -68,7 +68,6 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
                   align="right"
                   layout="vertical"
                   iconType="circle"
-                  wrapperStyle={{ paddingLeft: '20px' }}
                   payload={chartData.map(item => ({
                     value: `${item.name} (${item.value})`,
                     type: 'circle',
