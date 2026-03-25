@@ -120,6 +120,10 @@ function ModuleSidebar({ slug }: { slug: string }) {
             items.push({ href: `/module/${slug}/pem-consumable`, label: 'PEM Consumable', icon: ShoppingBasket });
         }
 
+        if (slug === 'machinery_maintenance_t02_13') {
+            items.push({ href: `/module/${slug}/mm-consumable`, label: 'MM Consumable', icon: ShoppingBasket });
+        }
+
         return items;
     }, [slug]);
 
