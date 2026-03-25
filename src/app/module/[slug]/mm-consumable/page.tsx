@@ -5,6 +5,25 @@ import { useParams } from 'next/navigation';
 import PageHeader from "@/components/module/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getModuleNameFromSlug } from '@/lib/utils';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const tableHeaders = [
+    "SN",
+    "Order_Number",
+    "Item_Name",
+    "Quantity",
+    "Date_Ordered",
+    "Date_Received",
+    "Next_Order",
+];
+
 
 export default function MMConsumablePage() {
     const params = useParams();
@@ -24,12 +43,27 @@ export default function MMConsumablePage() {
                     <CardHeader>
                         <CardTitle>MM Consumable</CardTitle>
                         <CardDescription>
-                            This page is under construction.
+                            A list of all consumable items for this module.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex h-48 items-center justify-center">
-                            <p className="text-muted-foreground">Content for MM Consumable will be added here.</p>
+                        <div className="w-full overflow-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        {tableHeaders.map(header => (
+                                            <TableHead key={header} className="whitespace-nowrap text-center">{header}</TableHead>
+                                        ))}
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
+                                            No consumable items have been added yet.
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
                         </div>
                     </CardContent>
                 </Card>
