@@ -93,13 +93,12 @@
         "asset_useful_lifespan__month_": { "type": "string" },
         "depreciation_amount": { "type": "string" },
         "end_user": { "type": "string" },
+        "custodian": { "type": "string" },
         "in_service_date": { "type": "string", "format": "date-time" },
         "net_book_value": { "type": "string" },
         "remaining_lifespan": { "type": "string" },
         "remarks": { "type": "string" },
-        "status": { "type": "string" },
-        "sensor_mac": { "type": "string" },
-        "sensor_pin": { "type": "string" }
+        "status": { "type": "string" }
       }
     },
     "PEMConsumable": {

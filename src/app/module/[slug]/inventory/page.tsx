@@ -34,6 +34,7 @@ const tableHeaders = [
     "asset_description",
     "asset_group",
     "end_user",
+    "custodian",
     "asset_useful_lifespan (month)",
     "remaining_lifespan",
     "depreciation_amount",
@@ -52,6 +53,7 @@ const headerToFieldMap: Record<string, keyof InventoryAsset | null> = {
     "asset_description": "asset_description",
     "asset_group": "asset_group",
     "end_user": "end_user",
+    "custodian": "custodian",
     "asset_useful_lifespan (month)": "asset_useful_lifespan__month_",
     "remaining_lifespan": "remaining_lifespan",
     "depreciation_amount": "depreciation_amount",
@@ -103,6 +105,7 @@ export default function InventoryPage() {
             asset.asset_category?.toLowerCase().includes(lowercasedFilter) ||
             asset.asset_description?.toLowerCase().includes(lowercasedFilter) ||
             asset.end_user?.toLowerCase().includes(lowercasedFilter) ||
+            asset.custodian?.toLowerCase().includes(lowercasedFilter) ||
             asset.net_book_value?.toLowerCase().includes(lowercasedFilter)
         );
     });
@@ -126,7 +129,7 @@ export default function InventoryPage() {
             <CardContent>
                 <div className="mb-4">
                     <Input
-                        placeholder="Filter by ID, category, description, end user, or value..."
+                        placeholder="Filter by ID, category, description, end user, custodian, or value..."
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                         className="max-w-md"

@@ -37,13 +37,12 @@ export type InventoryAsset = {
   asset_useful_lifespan__month_?: string;
   depreciation_amount?: string;
   end_user?: string;
+  custodian?: string;
   in_service_date?: string;
   net_book_value?: string;
   remaining_lifespan?: string;
   remarks?: string;
   status?: string;
-  sensor_mac?: string;
-  sensor_pin?: string;
 };
 
 export type PEMConsumable = {
