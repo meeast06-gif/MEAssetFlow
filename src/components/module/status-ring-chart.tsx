@@ -50,6 +50,7 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
   })).filter(item => item.value > 0);
   
   const totalStatusValues = chartData.reduce((acc, item) => acc + item.value, 0);
+  const hasMultipleSegments = chartData.length > 1;
 
   return (
     <Card className="md:col-span-2 lg:col-span-3 xl:col-span-4">
@@ -79,11 +80,11 @@ export default function StatusRingChart({ data }: StatusRingChartProps) {
                   data={chartData}
                   dataKey="value"
                   nameKey="name"
-                  cx="40%"
+                  cx="50%"
                   cy="50%"
                   innerRadius={80}
                   outerRadius={110}
-                  paddingAngle={2}
+                  paddingAngle={hasMultipleSegments ? 2 : 0}
                   strokeWidth={0}
                 >
                   {chartData.map((entry) => (
