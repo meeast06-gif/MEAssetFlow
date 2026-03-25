@@ -124,6 +124,10 @@ function ModuleSidebar({ slug }: { slug: string }) {
             items.push({ href: `/module/${slug}/mm-consumable`, label: 'MM Consumable', icon: ShoppingBasket });
         }
 
+        if (slug === 'cad_cam_designlab_t01_23') {
+            items.push({ href: `/module/${slug}/designlab-consumable`, label: 'DesignLab Consumable', icon: ShoppingBasket });
+        }
+
         return items;
     }, [slug]);
 
