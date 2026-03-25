@@ -40,8 +40,6 @@ const tableHeaders = [
     "net_book_value",
     "in_service_date",
     "status",
-    "sensor_mac",
-    "sensor_pin",
     "remarks"
 ];
 
@@ -60,8 +58,6 @@ const headerToFieldMap: Record<string, keyof InventoryAsset | null> = {
     "net_book_value": "net_book_value",
     "in_service_date": "in_service_date",
     "status": "status",
-    "sensor_mac": "sensor_mac",
-    "sensor_pin": "sensor_pin",
     "remarks": "remarks",
 };
 
