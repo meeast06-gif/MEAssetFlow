@@ -25,6 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { getAiOrganizerAction } from '@/lib/actions';
 import { findAsset, moveAsset, deleteAsset } from '@/lib/inventory-actions';
 import { getModuleNameFromSlug } from '@/lib/utils';
+import { useAiResponse, setAiResponse } from '@/hooks/use-ai-response';
 
 
 function ModuleSidebar({ slug }: { slug: string }) {
@@ -32,70 +33,70 @@ function ModuleSidebar({ slug }: { slug: string }) {
     const firestore = useFirestore();
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [response, setResponse] = useState('');
+    const { response } = useAiResponse();
 
     const handleAiSubmit = async () => {
         if (!prompt || !firestore) return;
 
         setIsLoading(true);
-        setResponse('');
+        setAiResponse('');
 
         try {
             const result = await getAiOrganizerAction(prompt, slug);
 
             if (result.action === 'move') {
-                setResponse(`Understood. Searching for the asset(s) to move...`);
+                setAiResponse(`Understood. Searching for the asset(s) to move...`);
                 
                 const assetsToMove = await findAsset(firestore, result.sourceModuleSlug, result.assetIdentifier);
 
                 if (assetsToMove.length === 0) {
-                    setResponse(`Could not find any matching assets to move. Please check the identifiers provided.`);
+                    setAiResponse(`Could not find any matching assets to move. Please check the identifiers provided.`);
                 } else {
                     const sourceModuleName = getModuleNameFromSlug(result.sourceModuleSlug);
                     const destModuleName = getModuleNameFromSlug(result.destinationModuleSlug);
                     const assetIds = assetsToMove.map(a => a.ams_asset_id || a.id).join(', ');
 
-                    setResponse(`Found ${assetsToMove.length} asset(s): [${assetIds}]. Moving from ${sourceModuleName} to ${destModuleName}...`);
+                    setAiResponse(`Found ${assetsToMove.length} asset(s): [${assetIds}]. Moving from ${sourceModuleName} to ${destModuleName}...`);
                     
                     const moveResult = await moveAsset(firestore, result.sourceModuleSlug, result.destinationModuleSlug, assetsToMove);
 
                     if (moveResult.success) {
-                        setResponse(`Successfully moved ${assetsToMove.length} asset(s) to ${destModuleName}.`);
+                        setAiResponse(`Successfully moved ${assetsToMove.length} asset(s) to ${destModuleName}.`);
                     } else {
-                        setResponse(`Failed to move asset(s). Error: ${moveResult.error}`);
+                        setAiResponse(`Failed to move asset(s). Error: ${moveResult.error}`);
                     }
                 }
 
             } else if (result.action === 'delete') {
-                setResponse(`Understood. Searching for the asset to delete...`);
+                setAiResponse(`Understood. Searching for the asset to delete...`);
 
                 const assetsToDelete = await findAsset(firestore, result.sourceModuleSlug, result.assetIdentifier);
 
                 if (assetsToDelete.length === 0) {
-                    setResponse(`Could not find a matching asset to delete. Please be more specific with the asset ID, description, or end user.`);
+                    setAiResponse(`Could not find a matching asset to delete. Please be more specific with the asset ID, description, or end user.`);
                 } else if (assetsToDelete.length > 1) {
-                    setResponse(`Found multiple matching assets. Please provide a more specific identifier (like the 'ams_asset_id').`);
+                    setAiResponse(`Found multiple matching assets. Please provide a more specific identifier (like the 'ams_asset_id').`);
                 } else {
                     const asset = assetsToDelete[0];
                     const sourceModuleName = getModuleNameFromSlug(result.sourceModuleSlug);
 
-                    setResponse(`Found asset "${asset.asset_description || asset.ams_asset_id}". Deleting it from ${sourceModuleName}...`);
+                    setAiResponse(`Found asset "${asset.asset_description || asset.ams_asset_id}". Deleting it from ${sourceModuleName}...`);
 
                     const deleteResult = await deleteAsset(firestore, result.sourceModuleSlug, asset.id);
 
                     if (deleteResult.success) {
-                        setResponse(`Successfully deleted asset "${asset.asset_description || asset.ams_asset_id}" from ${sourceModuleName}.`);
+                        setAiResponse(`Successfully deleted asset "${asset.asset_description || asset.ams_asset_id}" from ${sourceModuleName}.`);
                     } else {
-                        setResponse(`Failed to delete asset. Error: ${deleteResult.error}`);
+                        setAiResponse(`Failed to delete asset. Error: ${deleteResult.error}`);
                     }
                 }
             } else { // action === 'none'
-                setResponse(result.reasoning);
+                setAiResponse(result.reasoning);
             }
 
         } catch (error) {
             console.error("AI Organizer error:", error);
-            setResponse("Sorry, an unexpected error occurred.");
+            setAiResponse("Sorry, an unexpected error occurred.");
         } finally {
             setIsLoading(false);
         }

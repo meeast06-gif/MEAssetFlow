@@ -49,6 +49,7 @@ const DeleteActionSchema = z.object({
 const NoActionSchema = z.object({
     action: z.literal('none'),
     reasoning: z.string().describe("Explanation why no action was taken, or a natural language response to the user's query if it wasn't an action-oriented command."),
+    nextOrderDate: z.string().optional().describe("The calculated next order date in YYYY-MM-DD format if applicable."),
 });
 
 const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, DeleteActionSchema, NoActionSchema]);
@@ -110,7 +111,8 @@ Analyze the user's prompt: "{{{prompt}}}"
   - If the prompt includes an order date (e.g., "order date is 2026-01-05"), you MUST also calculate the next order date.
     - The run-out date is calculated by adding FW (full weeks) to the given orderDate.
     - The 'next order date' is exactly 1 week before the run-out date.
-    - The response must include the full weeks, the remainder with units, and the calculated next order date.
+    - If you calculate a next order date, you MUST populate the 'nextOrderDate' field in the output with the date in YYYY-MM-DD format.
+    - The 'reasoning' field should contain the human-friendly explanation of the calculation, including the full weeks, remainder, run-out date and next order date.
 
   - If all variables (T, S, C, U) are present but no order date, calculate W, FW, and R, and formulate a response like: "The consumables will last for [FW] full weeks, with a remainder of [R] [units]."
   - If any variables are missing, ask the user for the missing information (e.g., "I need the values for S, C, and U to perform the calculation.").
@@ -168,7 +170,8 @@ User Prompt: "T=400 units, S=20, C=2, U=1, order date was 2026-01-05"
 Output:
 {
   "action": "none",
-  "reasoning": "With a weekly usage of 40 units, the 400 units will last for 10 full weeks with a remainder of 0 units. Based on an order date of 2026-01-05, the items will run out on 2026-03-16. You should place your next order by 2026-03-09 to account for a one week lead time."
+  "reasoning": "With a weekly usage of 40 units, the 400 units will last for 10 full weeks with a remainder of 0 units. Based on an order date of 2026-01-05, the items will run out on 2026-03-16. You should place your next order by 2026-03-09 to account for a one week lead time.",
+  "nextOrderDate": "2026-03-09"
 }
 `
 });
