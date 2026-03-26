@@ -13,6 +13,7 @@ import {
 import type { InventoryAsset } from './definitions';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { modules, slugify, getModuleNameFromSlug } from './utils';
 
 type AssetIdentifier = {
   ams_asset_id?: string[];
@@ -128,4 +129,56 @@ export async function deleteAsset(
     errorEmitter.emit('permission-error', permissionError);
     return { success: false, error: serverError.message || 'An unknown error occurred.' };
   }
+}
+
+
+/**
+ * Finds assets across ALL modules based on given filters.
+ */
+export async function findAllAssets(
+  db: Firestore,
+  filters: {
+    net_book_value?: string;
+    end_user?: string;
+    custodian?: string;
+  }
+): Promise<InventoryAsset[]> {
+  const allAssets: InventoryAsset[] = [];
+  const moduleSlugs = modules.map(slugify);
+
+  // Create an array of promises for all query executions
+  const queryPromises = moduleSlugs.map(async (slug) => {
+    let q = query(collection(db, `modules/${slug}/inventory_list`));
+    
+    // Apply filters
+    if (filters.net_book_value !== undefined) {
+      q = query(q, where('net_book_value', '==', filters.net_book_value));
+    }
+    if (filters.end_user) {
+      q = query(q, where('end_user', '==', filters.end_user));
+    }
+    if (filters.custodian) {
+      q = query(q, where('custodian', '==', filters.custodian));
+    }
+
+    try {
+      const querySnapshot = await getDocs(q);
+      const moduleName = getModuleNameFromSlug(slug);
+      querySnapshot.forEach((doc) => {
+        allAssets.push({
+          id: doc.id,
+          ...doc.data(),
+          module: moduleName, // Add module name for display
+        } as InventoryAsset);
+      });
+    } catch (error) {
+      // Don't throw, just log. One failing module shouldn't stop the whole search.
+      console.error(`Error querying module ${slug}:`, error);
+    }
+  });
+
+  // Wait for all queries to complete
+  await Promise.all(queryPromises);
+
+  return allAssets;
 }

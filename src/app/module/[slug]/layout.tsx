@@ -23,13 +23,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from '@/components/ui/separator';
 import { getAiOrganizerAction } from '@/lib/actions';
-import { findAsset, moveAsset, deleteAsset } from '@/lib/inventory-actions';
+import { findAsset, moveAsset, deleteAsset, findAllAssets } from '@/lib/inventory-actions';
 import { getModuleNameFromSlug } from '@/lib/utils';
 import { useAiResponse, setAiResponse } from '@/hooks/use-ai-response';
+import { setSmartDisplayData } from '@/hooks/use-smart-display-data';
 
 
 function ModuleSidebar({ slug }: { slug: string }) {
     const pathname = usePathname();
+    const router = useRouter();
     const firestore = useFirestore();
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -89,6 +91,18 @@ function ModuleSidebar({ slug }: { slug: string }) {
                     } else {
                         setAiResponse(`Failed to delete asset. Error: ${deleteResult.error}`);
                     }
+                }
+            } else if (result.action === 'display') {
+                setAiResponse(result.reasoning || "Searching for assets...");
+                const foundAssets = await findAllAssets(firestore, result.filters);
+
+                if (foundAssets.length > 0) {
+                    setSmartDisplayData(foundAssets);
+                    setAiResponse(`Found ${foundAssets.length} asset(s) matching your criteria. Displaying results.`);
+                    router.push(`/module/${slug}/smart-display`);
+                } else {
+                    setAiResponse("Could not find any assets matching your criteria.");
+                    setSmartDisplayData([]); // Clear previous results
                 }
             } else { // action === 'none'
                 setAiResponse(result.reasoning);
@@ -230,8 +244,11 @@ export default function ModuleLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // Clear the AI response whenever the user navigates.
+    // Clear the AI response and smart display data whenever the user navigates.
     setAiResponse('');
+    if (!pathname.includes('/smart-display')) {
+        setSmartDisplayData([]);
+    }
   }, [pathname]);
 
   useEffect(() => {

@@ -43,6 +43,7 @@ export type InventoryAsset = {
   remaining_lifespan?: string;
   remarks?: string;
   status?: string;
+  module?: string;
 };
 
 export type PEMConsumable = {

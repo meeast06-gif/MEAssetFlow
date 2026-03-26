@@ -46,13 +46,23 @@ const DeleteActionSchema = z.object({
     reasoning: z.string().describe("A brief explanation of the deletion action for the user."),
 });
 
+const DisplayActionSchema = z.object({
+  action: z.literal('display'),
+  filters: z.object({
+    net_book_value: z.string().optional().describe("Filter assets by net book value (e.g., '0')."),
+    end_user: z.string().optional().describe("Filter assets by end user name."),
+    custodian: z.string().optional().describe("Filter assets by custodian name."),
+  }).describe("The criteria to filter assets for display."),
+  reasoning: z.string().describe("A brief explanation of the display action for the user."),
+});
+
 const NoActionSchema = z.object({
     action: z.literal('none'),
     reasoning: z.string().describe("Explanation why no action was taken, or a natural language response to the user's query if it wasn't an action-oriented command."),
     nextOrderDate: z.string().optional().describe("The calculated next order date in YYYY-MM-DD format if applicable."),
 });
 
-const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, DeleteActionSchema, NoActionSchema]);
+const OrganizeInventoryOutputSchema = z.union([MoveActionSchema, DeleteActionSchema, DisplayActionSchema, NoActionSchema]);
 export type OrganizeInventoryOutput = z.infer<typeof OrganizeInventoryOutputSchema>;
 
 // Wrapper function for external calls
@@ -76,6 +86,11 @@ Here are the available modules they can move assets to:
 {{/each}}
 
 Analyze the user's prompt: "{{{prompt}}}"
+
+- If the user wants to view, show, or display a list of assets based on criteria (e.g., "show me all assets with net value 0", "find assets for end user 'John Doe'"), identify the filters.
+  - Supported filters are 'net_book_value', 'end_user', and 'custodian'.
+  - You MUST map phrases like "net value", "value", or "book value" to 'net_book_value'.
+  - If successful, return a 'display' action object. The 'reasoning' should be a confirmation message for the user.
 
 - If the user wants to move an asset or assets, identify the asset(s) and the destination module.
   - The asset can be identified by its "ams_asset_id", "asset_description", or "end_user".
@@ -118,7 +133,7 @@ Analyze the user's prompt: "{{{prompt}}}"
   - If any variables are missing, ask the user for the missing information (e.g., "I need the values for S, C, and U to perform the calculation.").
   - Return a 'none' action object with the calculation result or question in the 'reasoning' field.
 
-- If the user's prompt is not a 'move', 'delete', or calculation command, or if it's ambiguous, or if the destination module doesn't exist for a move command, return a 'none' action object.
+- If the user's prompt is not a 'move', 'delete', 'display', or calculation command, or if it's ambiguous, or if the destination module doesn't exist for a move command, return a 'none' action object.
   - In the 'reasoning' field for 'none' actions, provide a helpful, natural language response. For example, if a destination module is not found, list the available modules. If the request is a general question, answer it.
 
 Example 1 (Move Multiple):
@@ -133,16 +148,13 @@ Output:
   "reasoning": "Understood. Moving assets EF1, EF2 from Machinery Maintenance T02_13 to Plant Maintenance T02_11."
 }
 
-Example 2 (Move Single):
-User Prompt: "move asset with id ME-1234 to Plant Maintenance T02_11"
-Current Module Slug: "machinery_maintenance_t02_13"
+Example 2 (Display):
+User Prompt: "Show me all assets that have a net value of 0"
 Output:
 {
-  "action": "move",
-  "sourceModuleSlug": "machinery_maintenance_t02_13",
-  "destinationModuleSlug": "plant_maintenance_t02_11",
-  "assetIdentifier": { "ams_asset_id": ["ME-1234"] },
-  "reasoning": "Understood. Moving asset ME-1234 from Machinery Maintenance T02_13 to Plant Maintenance T02_11."
+  "action": "display",
+  "filters": { "net_book_value": "0" },
+  "reasoning": "Understood. Searching for all assets with a net book value of $0."
 }
 
 Example 3 (Delete):
