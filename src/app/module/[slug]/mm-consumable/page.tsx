@@ -18,6 +18,7 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { MMConsumable } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatInTimeZone } from 'date-fns-tz';
+import AiForecastCell from '@/components/module/ai-forecast-cell';
 
 const tableHeaders = [
     "SN",
@@ -120,7 +121,9 @@ export default function MMConsumablePage() {
                                                     }
                                                     return <TableCell key={header} className="text-center">{value ?? ''}</TableCell>;
                                                 })}
-                                                <TableCell className="text-center border-l-2 border-border"></TableCell>
+                                                <TableCell className="text-center border-l-2 border-border">
+                                                  <AiForecastCell item={item} />
+                                                </TableCell>
                                             </TableRow>
                                         ))
                                     ) : (
