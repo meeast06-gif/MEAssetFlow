@@ -225,7 +225,12 @@ export default function ModuleLayout({
   const router = useRouter();
   const params = useParams();
   const slug = params.slug as string;
+  const pathname = usePathname();
 
+  useEffect(() => {
+    // Clear the AI response whenever the user navigates.
+    setAiResponse('');
+  }, [pathname]);
 
   useEffect(() => {
     if (!loading && !user) {
