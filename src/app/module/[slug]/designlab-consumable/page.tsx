@@ -92,6 +92,7 @@ export default function DesignLabConsumablePage() {
                                         {tableHeaders.map(header => (
                                             <TableHead key={header} className="whitespace-nowrap text-center">{header}</TableHead>
                                         ))}
+                                        <TableHead className="whitespace-nowrap text-center border-l-2 border-border">AI Forecast</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -103,6 +104,9 @@ export default function DesignLabConsumablePage() {
                                                         <Skeleton className="h-5 w-3/4 mx-auto" />
                                                     </TableCell>
                                                 ))}
+                                                <TableCell className="text-center border-l-2 border-border">
+                                                    <Skeleton className="h-5 w-3/4 mx-auto" />
+                                                </TableCell>
                                             </TableRow>
                                         ))
                                     ) : designlabConsumables && designlabConsumables.length > 0 ? (
@@ -116,11 +120,12 @@ export default function DesignLabConsumablePage() {
                                                     }
                                                     return <TableCell key={header} className="text-center">{value ?? ''}</TableCell>;
                                                 })}
+                                                <TableCell className="text-center border-l-2 border-border"></TableCell>
                                             </TableRow>
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={tableHeaders.length} className="h-24 text-center">
+                                            <TableCell colSpan={tableHeaders.length + 1} className="h-24 text-center">
                                                 No consumable items have been added yet.
                                             </TableCell>
                                         </TableRow>
