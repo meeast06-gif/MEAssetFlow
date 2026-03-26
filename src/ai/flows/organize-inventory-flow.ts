@@ -18,6 +18,7 @@ const OrganizeInventoryInputSchema = z.object({
       name: z.string(),
       slug: z.string(),
   })).describe("A list of all available modules with their names and slugs."),
+  itemNameForCalculation: z.string().optional().describe("The name of the consumable item for context, e.g., 'Filament (1kg)'. Helps in determining units."),
 });
 export type OrganizeInventoryInput = z.infer<typeof OrganizeInventoryInputSchema>;
 
@@ -86,6 +87,9 @@ Analyze the user's prompt: "{{{prompt}}}"
   - If successful, return a 'delete' action object. The sourceModuleSlug is always the currentModuleSlug. The reasoning should be a confirmation message for the user.
 
 - If the user's prompt is a calculation request for consumable usage, perform the calculation.
+  {{#if itemNameForCalculation}}
+  The calculation is for the item: '{{{itemNameForCalculation}}}'. Use this name to infer the units for the total quantity 'T' if they are not specified in the prompt.
+  {{/if}}
   - The formulas are:
     - Usage per week (W) = S * C * U
     - Full Weeks (FW) = floor(T / W)
@@ -95,12 +99,12 @@ Analyze the user's prompt: "{{{prompt}}}"
     - S: Number of students
     - C: Number of classes per week
     - U: Item usage per student per class
-  - Look for variables and their values in the prompt (e.g., "T=500, S=20, C=2, U=1"). Also, identify any units mentioned (e.g., mm, pairs, bottles).
+  - Look for variables and their values in the prompt (e.g., "T=500, S=20, C=2, U=1"). The user may provide units for 'U' (e.g., 'U=2ml'). You MUST parse these units and use them in your response. The remainder should be stated in the correct units.
 
   - If the prompt includes an order date (e.g., "order date is 2026-01-05"), you MUST also calculate the next order date.
     - The run-out date is calculated by adding FW (full weeks) to the given orderDate.
     - The 'next order date' is exactly 1 week before the run-out date.
-    - The response must include the full weeks, the remainder, and the calculated next order date.
+    - The response must include the full weeks, the remainder with units, and the calculated next order date.
 
   - If all variables (T, S, C, U) are present but no order date, calculate W, FW, and R, and formulate a response like: "The consumables will last for [FW] full weeks, with a remainder of [R] [units]."
   - If any variables are missing, ask the user for the missing information (e.g., "I need the values for S, C, and U to perform the calculation.").
@@ -145,7 +149,8 @@ Output:
 }
 
 Example 4 (Calculation):
-User Prompt: "T=500 bottles, S=25, C=2, U=2"
+User Prompt: "T=500, S=25, C=2, U=2"
+Item Name: "Glue bottles"
 Output:
 {
   "action": "none",

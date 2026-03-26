@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
@@ -49,16 +48,9 @@ export default function AiForecastCell({ item }: { item: ConsumableItem }) {
         if (item.date_ordered) {
             prompt += `, order date was ${item.date_ordered}`;
         }
-        // Try to get units from item name to improve AI response quality
-        if (item.item_name) {
-            const units = item.item_name.split(' ').pop();
-            if(units) {
-                prompt += `, the units are ${units}`;
-            }
-        }
 
         try {
-            const result = await getAiOrganizerAction(prompt, slug);
+            const result = await getAiOrganizerAction(prompt, slug, item.item_name);
             if (result.action === 'none') {
                 setForecast(result.reasoning);
                 setOpen(false);
@@ -117,7 +109,7 @@ export default function AiForecastCell({ item }: { item: ConsumableItem }) {
                             </div>
                             <div className="grid items-center gap-1.5">
                                 <Label htmlFor="usage">Usage per Student/Class (U)</Label>
-                                <Input id="usage" type="number" value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="e.g. 1" />
+                                <Input id="usage" type="text" value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="e.g. 1 or 2ml" />
                             </div>
                         </div>
                          <DialogFooter>
