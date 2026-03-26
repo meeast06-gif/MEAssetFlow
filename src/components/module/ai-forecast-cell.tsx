@@ -51,7 +51,7 @@ export default function AiForecastCell({ item }: { item: ConsumableItem }) {
         }
 
         try {
-            const result = await getAiOrganizerAction(prompt, slug, item.item_name);
+            const result = await getAiOrganizerAction(prompt, slug, item.item_name, item.units);
             if (result.action === 'none') {
                 setForecast(result.reasoning);
                 setOpen(false);
@@ -96,7 +96,7 @@ export default function AiForecastCell({ item }: { item: ConsumableItem }) {
                         <DialogHeader>
                             <DialogTitle>Forecast Consumable Usage</DialogTitle>
                             <DialogDescription>
-                                For item '{item.item_name}' with a total quantity of {item.quantity}.
+                                For item '{item.item_name}' with a total quantity of {item.quantity} {item.units}.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">

@@ -38,7 +38,8 @@ export async function getAiSummary(assets: Asset[]) {
 export async function getAiOrganizerAction(
   prompt: string,
   currentModuleSlug: string,
-  itemNameForCalculation?: string
+  itemNameForCalculation?: string,
+  itemUnitsForCalculation?: string
 ): Promise<OrganizeInventoryOutput> {
   try {
     const availableModules = modules.map(name => ({ name, slug: slugify(name) }));
@@ -48,6 +49,7 @@ export async function getAiOrganizerAction(
       currentModuleSlug,
       availableModules,
       itemNameForCalculation,
+      itemUnitsForCalculation,
     });
 
     return result;

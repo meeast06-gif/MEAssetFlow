@@ -19,6 +19,7 @@ const OrganizeInventoryInputSchema = z.object({
       slug: z.string(),
   })).describe("A list of all available modules with their names and slugs."),
   itemNameForCalculation: z.string().optional().describe("The name of the consumable item for context, e.g., 'Filament (1kg)'. Helps in determining units."),
+  itemUnitsForCalculation: z.string().optional().describe("The unit of measure for the item, e.g., 'bottles', 'reams', 'kg'. This is the primary source for units."),
 });
 export type OrganizeInventoryInput = z.infer<typeof OrganizeInventoryInputSchema>;
 
@@ -87,7 +88,9 @@ Analyze the user's prompt: "{{{prompt}}}"
   - If successful, return a 'delete' action object. The sourceModuleSlug is always the currentModuleSlug. The reasoning should be a confirmation message for the user.
 
 - If the user's prompt is a calculation request for consumable usage, perform the calculation.
-  {{#if itemNameForCalculation}}
+  {{#if itemUnitsForCalculation}}
+  The total quantity 'T' is measured in '{{{itemUnitsForCalculation}}}'. Use this unit for the remainder 'R' and in your reasoning. For example, if T=500 and itemUnitsForCalculation is 'bottles', the total is 500 bottles.
+  {{else if itemNameForCalculation}}
   The calculation is for the item: '{{{itemNameForCalculation}}}'. Use this name to infer the units for the total quantity 'T' if they are not specified in the prompt.
   {{/if}}
   - The formulas are:
@@ -99,7 +102,10 @@ Analyze the user's prompt: "{{{prompt}}}"
     - S: Number of students
     - C: Number of classes per week
     - U: Item usage per student per class
-  - Look for variables and their values in the prompt (e.g., "T=500, S=20, C=2, U=1"). The user may provide units for 'U' (e.g., 'U=2ml'). You MUST parse these units and use them in your response. The remainder should be stated in the correct units.
+  - Look for variables and their values in the prompt (e.g., "T=500, S=20, C=2, U=1").
+  - The user may provide units for 'U' (e.g., 'U=2ml'). If so, you MUST parse and use those units.
+  - If units for 'U' are NOT provided, assume 'U' is in the same units as 'T' (i.e., '{{{itemUnitsForCalculation}}}').
+  - Your final response for the remainder 'R' MUST include the correct units.
 
   - If the prompt includes an order date (e.g., "order date is 2026-01-05"), you MUST also calculate the next order date.
     - The run-out date is calculated by adding FW (full weeks) to the given orderDate.
@@ -150,11 +156,11 @@ Output:
 
 Example 4 (Calculation):
 User Prompt: "T=500, S=25, C=2, U=2"
-Item Name: "Glue bottles"
+Item Units: "bottles"
 Output:
 {
   "action": "none",
-  "reasoning": "With a total of 500 bottles, and a weekly usage of 100 bottles (25 students * 2 classes/week * 2 units/student), the consumables will last for 5 full weeks with a remainder of 0 bottles."
+  "reasoning": "With a total of 500 bottles, and a weekly usage of 100 bottles (25 students * 2 classes/week * 2 bottles/student), the consumables will last for 5 full weeks with a remainder of 0 bottles."
 }
 
 Example 5 (Calculation with Date):
