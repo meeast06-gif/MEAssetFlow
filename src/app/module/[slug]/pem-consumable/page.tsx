@@ -28,7 +28,6 @@ const tableHeaders = [
     "Units",
     "Date_Ordered",
     "Date_Received",
-    "Next_Order",
 ];
 
 const headerToFieldMap: Record<string, keyof PEMConsumable> = {
@@ -97,6 +96,7 @@ export default function PemConsumablePage() {
                                         {tableHeaders.map(header => (
                                             <TableHead key={header} className="whitespace-nowrap text-center">{header}</TableHead>
                                         ))}
+                                        <TableHead className="whitespace-nowrap text-center border-l-2 border-border">Next_Order</TableHead>
                                         <TableHead className="whitespace-nowrap text-center border-l-2 border-border">AI Forecast</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -109,6 +109,9 @@ export default function PemConsumablePage() {
                                                         <Skeleton className="h-5 w-3/4 mx-auto" />
                                                     </TableCell>
                                                 ))}
+                                                <TableCell className="text-center border-l-2 border-border">
+                                                    <Skeleton className="h-5 w-3/4 mx-auto" />
+                                                </TableCell>
                                                 <TableCell className="text-center border-l-2 border-border">
                                                     <Skeleton className="h-5 w-3/4 mx-auto" />
                                                 </TableCell>
@@ -125,6 +128,7 @@ export default function PemConsumablePage() {
                                                     }
                                                     return <TableCell key={header} className="text-center">{value ?? ''}</TableCell>;
                                                 })}
+                                                <TableCell className="text-center border-l-2 border-border">{formatDate(item.next_order)}</TableCell>
                                                 <TableCell className="text-center border-l-2 border-border">
                                                   <AiForecastCell item={item} />
                                                 </TableCell>
@@ -132,7 +136,7 @@ export default function PemConsumablePage() {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={tableHeaders.length + 1} className="h-24 text-center">
+                                            <TableCell colSpan={tableHeaders.length + 2} className="h-24 text-center">
                                                 No consumable items have been added yet.
                                             </TableCell>
                                         </TableRow>
