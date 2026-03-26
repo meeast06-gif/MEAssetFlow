@@ -68,7 +68,7 @@ export default function AiForecastCell({ item }: { item: ConsumableItem }) {
             if (result.action === 'none') {
                 setAiResponse(result.reasoning); // Set response in sidebar
                 
-                if (result.nextOrderDate) {
+                if (result.nextOrderDate && result.nextOrderDate.trim() !== '') {
                     let collectionPath = '';
                     if (slug === 'plant_maintenance_t02_11') {
                         collectionPath = 'modules/pem_consumable/inventory_list';
