@@ -85,25 +85,82 @@
       "description": "Represents a single asset within a module's inventory.",
       "type": "object",
       "properties": {
-        "agency": { "type": "string" },
-        "ams_asset_id": { "type": "string" },
-        "asset_category": { "type": "string" },
-        "asset_description": { "type": "string" },
-        "asset_group": { "type": "string" },
-        "asset_useful_lifespan__month_": { "type": "string" },
-        "depreciation_amount": { "type": "string" },
-        "end_user": { "type": "string" },
-        "custodian": { "type": "string" },
-        "in_service_date": { "type": "string", "format": "date-time" },
-        "net_book_value": { "type": "string" },
-        "remaining_lifespan": { "type": "string" },
-        "remarks": { "type": "string" },
-        "status": { "type": "string" }
+        "agency": {
+          "type": "string"
+        },
+        "ams_asset_id": {
+          "type": "string"
+        },
+        "asset_category": {
+          "type": "string"
+        },
+        "asset_description": {
+          "type": "string"
+        },
+        "asset_group": {
+          "type": "string"
+        },
+        "asset_useful_lifespan__month_": {
+          "type": "string"
+        },
+        "depreciation_amount": {
+          "type": "string"
+        },
+        "end_user": {
+          "type": "string"
+        },
+        "custodian": {
+          "type": "string"
+        },
+        "in_service_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "net_book_value": {
+          "type": "string"
+        },
+        "remaining_lifespan": {
+          "type": "string"
+        },
+        "remarks": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
       }
     },
     "PEMConsumable": {
       "title": "PEM Consumable",
       "description": "Represents a single consumable item for a module's inventory.",
+      "type": "object",
+      "properties": {
+        "sn": {
+          "type": "string"
+        },
+        "order_number": {
+          "type": "string"
+        },
+        "item_name": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string"
+        },
+        "date_ordered": {
+          "type": "string"
+        },
+        "date_received": {
+          "type": "string"
+        },
+        "next_order": {
+          "type": "string"
+        }
+      }
+    },
+    "MMConsumable": {
+      "title": "MM Consumable",
+      "description": "Represents a single consumable item for Machinery Maintenance.",
       "type": "object",
       "properties": {
         "sn": {
@@ -159,6 +216,12 @@
         "$ref": "#/entities/PEMConsumable"
       },
       "description": "Stores the collection of PEM consumable items."
+    },
+    "/modules/mm_consumable/inventory_list/{mmConsumableId}": {
+      "schema": {
+        "$ref": "#/entities/MMConsumable"
+      },
+      "description": "Stores the collection of MM consumable items."
     }
   }
 }

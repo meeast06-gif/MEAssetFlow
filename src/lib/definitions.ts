@@ -55,3 +55,14 @@ export type PEMConsumable = {
   date_received?: string;
   next_order?: string;
 };
+
+export type MMConsumable = {
+  id: string;
+  sn?: string;
+  order_number?: string;
+  item_name?: string;
+  quantity?: string;
+  date_ordered?: string;
+  date_received?: string;
+  next_order?: string;
+};

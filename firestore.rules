@@ -39,5 +39,11 @@ service cloud.firestore {
       // Allow authenticated users to read and write consumable data
       allow read, write: if request.auth != null;
     }
+
+    // Rules for MM consumables
+    match /modules/mm_consumable/inventory_list/{mmConsumableId} {
+      // Allow authenticated users to read and write consumable data
+      allow read, write: if request.auth != null;
+    }
   }
 }
