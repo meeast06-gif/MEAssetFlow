@@ -16,7 +16,7 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid, Sparkles, Loader2, ShoppingBasket } from 'lucide-react';
+import { LayoutDashboard, Archive, ClipboardCheck, Wrench, ChevronsLeft, ChevronsRight, LayoutGrid, Sparkles, Loader2, ShoppingBasket, Tv } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from "@/components/ui/textarea";
@@ -128,6 +128,8 @@ function ModuleSidebar({ slug }: { slug: string }) {
         if (slug === 'cad_cam_designlab_t01_23') {
             items.push({ href: `/module/${slug}/designlab-consumable`, label: 'DesignLab Consumable', icon: ShoppingBasket });
         }
+
+        items.push({ href: `/module/${slug}/smart-display`, label: 'Smart Display', icon: Tv });
 
         return items;
     }, [slug]);
