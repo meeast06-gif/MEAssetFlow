@@ -113,7 +113,7 @@ export default function InspectionPage() {
                         <TableHeader>
                             <TableRow>
                                 {tableHeaders.map(header => (
-                                    <TableHead key={header} className="whitespace-nowrap">{header}</TableHead>
+                                    <TableHead key={header} className="whitespace-nowrap text-center">{header}</TableHead>
                                 ))}
                             </TableRow>
                         </TableHeader>
@@ -122,18 +122,18 @@ export default function InspectionPage() {
                                 [...Array(5)].map((_, i) => (
                                     <TableRow key={i}>
                                         {tableHeaders.map(header => (
-                                            <TableCell key={header}><Skeleton className="h-5 w-full" /></TableCell>
+                                            <TableCell key={header} className="text-center"><Skeleton className="h-5 w-3/4 mx-auto" /></TableCell>
                                         ))}
                                     </TableRow>
                                 ))
                             ) : inspectionAssets && inspectionAssets.length > 0 ? (
                                 inspectionAssets.map((asset, index) => (
                                     <TableRow key={asset.id}>
-                                        <TableCell>{index + 1}</TableCell>
+                                        <TableCell className="text-center">{index + 1}</TableCell>
                                         {tableHeaders.slice(1).map(header => {
                                             const fieldKey = headerToFieldMap[header];
                                             const value = fieldKey ? asset[fieldKey] : '';
-                                            return <TableCell key={header}>{value ?? ''}</TableCell>;
+                                            return <TableCell key={header} className="text-center">{value ?? ''}</TableCell>;
                                         })}
                                     </TableRow>
                                 ))
