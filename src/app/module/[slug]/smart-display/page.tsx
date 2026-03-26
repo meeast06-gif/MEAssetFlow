@@ -55,9 +55,6 @@ export default function SmartDisplayPage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Smart Display</CardTitle>
-                            <CardDescription>
-                                This page is under construction. Use the AI Organizer to display asset data here.
-                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                            <div className="flex h-48 items-center justify-center">
