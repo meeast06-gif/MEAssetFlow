@@ -66,3 +66,14 @@ export type MMConsumable = {
   date_received?: string;
   next_order?: string;
 };
+
+export type DesignLabConsumable = {
+  id: string;
+  sn?: string;
+  order_number?: string;
+  item_name?: string;
+  quantity?: string;
+  date_ordered?: string;
+  date_received?: string;
+  next_order?: string;
+};

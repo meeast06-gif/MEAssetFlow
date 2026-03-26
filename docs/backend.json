@@ -185,6 +185,34 @@
           "type": "string"
         }
       }
+    },
+    "DesignLabConsumable": {
+      "title": "DesignLab Consumable",
+      "description": "Represents a single consumable item for the CAD/CAM DesignLab.",
+      "type": "object",
+      "properties": {
+        "sn": {
+          "type": "string"
+        },
+        "order_number": {
+          "type": "string"
+        },
+        "item_name": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string"
+        },
+        "date_ordered": {
+          "type": "string"
+        },
+        "date_received": {
+          "type": "string"
+        },
+        "next_order": {
+          "type": "string"
+        }
+      }
     }
   },
   "auth": {
@@ -222,6 +250,12 @@
         "$ref": "#/entities/MMConsumable"
       },
       "description": "Stores the collection of MM consumable items."
+    },
+    "/modules/designlab_consumable/inventory_list/{designlabConsumableId}": {
+      "schema": {
+        "$ref": "#/entities/DesignLabConsumable"
+      },
+      "description": "Stores the collection of DesignLab consumable items."
     }
   }
 }
