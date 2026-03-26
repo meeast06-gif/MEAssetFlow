@@ -51,6 +51,7 @@ export type PEMConsumable = {
   order_number?: string;
   item_name?: string;
   quantity?: string;
+  units?: string;
   date_ordered?: string;
   date_received?: string;
   next_order?: string;
@@ -62,6 +63,7 @@ export type MMConsumable = {
   order_number?: string;
   item_name?: string;
   quantity?: string;
+  units?: string;
   date_ordered?: string;
   date_received?: string;
   next_order?: string;
@@ -73,6 +75,7 @@ export type DesignLabConsumable = {
   order_number?: string;
   item_name?: string;
   quantity?: string;
+  units?: string;
   date_ordered?: string;
   date_received?: string;
   next_order?: string;

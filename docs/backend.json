@@ -147,6 +147,9 @@
         "quantity": {
           "type": "string"
         },
+        "units": {
+          "type": "string"
+        },
         "date_ordered": {
           "type": "string"
         },
@@ -175,6 +178,9 @@
         "quantity": {
           "type": "string"
         },
+        "units": {
+          "type": "string"
+        },
         "date_ordered": {
           "type": "string"
         },
@@ -201,6 +207,9 @@
           "type": "string"
         },
         "quantity": {
+          "type": "string"
+        },
+        "units": {
           "type": "string"
         },
         "date_ordered": {
