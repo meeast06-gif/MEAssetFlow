@@ -87,7 +87,7 @@ Here are the available modules they can move assets to:
 
 Analyze the user's prompt: "{{{prompt}}}"
 
-- If the user wants to view, show, or display a list of assets based on criteria (e.g., "show me all assets with net value 0", "find assets for end user 'John Doe'"), identify the filters.
+- If the user's prompt is a request to "view", "show", "display", or "find" a list of assets based on some criteria, you MUST interpret this as a 'display' action. For example, "show me all assets with net value 0" or "find assets for end user 'John Doe'".
   - Supported filters are 'net_book_value', 'end_user', and 'custodian'.
   - You MUST map phrases like "net value", "value", or "book value" to 'net_book_value'.
   - If successful, return a 'display' action object. The 'reasoning' should be a confirmation message for the user.

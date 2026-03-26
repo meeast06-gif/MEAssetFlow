@@ -26,7 +26,7 @@ import { getAiOrganizerAction } from '@/lib/actions';
 import { findAsset, moveAsset, deleteAsset, findAllAssets } from '@/lib/inventory-actions';
 import { getModuleNameFromSlug } from '@/lib/utils';
 import { useAiResponse, setAiResponse } from '@/hooks/use-ai-response';
-import { setSmartDisplayData } from '@/hooks/use-smart-display-data';
+import { useSmartDisplayData, setSmartDisplayData } from '@/hooks/use-smart-display-data';
 
 
 function ModuleSidebar({ slug }: { slug: string }) {
@@ -93,17 +93,9 @@ function ModuleSidebar({ slug }: { slug: string }) {
                     }
                 }
             } else if (result.action === 'display') {
-                setAiResponse(result.reasoning || "Searching for assets...");
                 const foundAssets = await findAllAssets(firestore, result.filters);
-
-                if (foundAssets.length > 0) {
-                    setSmartDisplayData(foundAssets);
-                    setAiResponse(`Found ${foundAssets.length} asset(s) matching your criteria. Displaying results.`);
-                    router.push(`/module/${slug}/smart-display`);
-                } else {
-                    setAiResponse("Could not find any assets matching your criteria.");
-                    setSmartDisplayData([]); // Clear previous results
-                }
+                setSmartDisplayData(foundAssets);
+                router.push(`/module/${slug}/smart-display`);
             } else { // action === 'none'
                 setAiResponse(result.reasoning);
             }
