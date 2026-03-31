@@ -121,7 +121,6 @@ export default function LoginPage() {
                 <Input 
                     type="text" 
                     id="username" 
-                    placeholder="MEAF" 
                     value={username} 
                     onChange={(e) => setUsername(e.target.value)} 
                     disabled={isLoggingIn}
@@ -132,7 +131,6 @@ export default function LoginPage() {
                 <Input 
                     type="password" 
                     id="passkey" 
-                    placeholder="••••••••" 
                     value={passKey} 
                     onChange={(e) => setPassKey(e.target.value)} 
                     onKeyDown={handleKeyDown}
